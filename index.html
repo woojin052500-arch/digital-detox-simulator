@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>디지털 금욕 실험 · 사고실험 시뮬레이터</title>
+<style>
+  :root{
+    --bg:#FFFFFF;
+    --panel:#F8F9FA;
+    --ink:#111111;
+    --muted:#666666;
+    --faint:#9A9A9A;
+    --line:#E4E4E4;
+    --line2:#EFEFEF;
+    --danger:#B3261E;
+    --sans:"Pretendard","Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",system-ui,-apple-system,"Segoe UI",sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font-family:var(--sans);font-size:14px;line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    word-break:keep-all;overflow-wrap:break-word;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:0 20px 96px}
+
+  /* header */
+  header{border-bottom:1px solid var(--line);padding:44px 0 26px;display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:18px}
+  .eyebrow{font-size:10.5px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+  header h1{font-size:27px;font-weight:600;letter-spacing:-.03em;margin:10px 0 0;line-height:1.2}
+  header .lede{font-size:13px;color:var(--muted);margin:10px 0 0;max-width:560px;line-height:1.7}
+  .hmeta{text-align:right;font-size:11.5px;color:var(--faint);line-height:1.9;white-space:nowrap}
+  .hmeta b{color:var(--ink);font-weight:500}
+
+  /* guide */
+  .guide{margin-top:22px;border:1px solid var(--line);background:var(--panel)}
+  .guide-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:13px 18px;border-bottom:1px solid var(--line)}
+  .guide-head .g-t{font-size:12.5px;font-weight:600;letter-spacing:-.01em}
+  .guide-head .g-n{font-size:11px;color:var(--faint)}
+  .guide-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+  .guide-item{padding:14px 18px 16px}
+  .guide-item+.guide-item{border-left:1px solid var(--line)}
+  .guide-item .g-num{font-size:10.5px;letter-spacing:.14em;color:var(--faint);font-variant-numeric:tabular-nums}
+  .guide-item p{margin:6px 0 0;font-size:12.5px;line-height:1.7;color:#2C2C2C}
+  .guide-item b{font-weight:600;color:var(--ink)}
+  @media (max-width:760px){
+    .guide-grid{grid-template-columns:1fr}
+    .guide-item+.guide-item{border-left:0;border-top:1px solid var(--line)}
+    .guide-item{padding:12px 16px 14px}
+    .guide-head{padding:12px 16px}
+  }
+
+  /* layout */
+  .layout{display:grid;grid-template-columns:302px minmax(0,1fr);gap:24px;align-items:start;padding-top:24px}
+  aside{position:sticky;top:18px}
+  main{min-width:0;display:flex;flex-direction:column;gap:16px}
+  @media (max-width:1000px){
+    .layout{grid-template-columns:272px minmax(0,1fr);gap:18px}
+  }
+  @media (max-width:760px){
+    .layout{grid-template-columns:1fr;gap:16px}
+    aside{position:static}
+    header{padding:30px 0 22px}
+    header h1{font-size:23px}
+    .hmeta{display:none}
+    .wrap{padding:0 14px 72px}
+  }
+
+  /* card */
+  .card{border:1px solid var(--line);background:#fff}
+  .card-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:16px 18px;border-bottom:1px solid var(--line)}
+  .card-head span{font-size:12.5px;font-weight:600;letter-spacing:-.01em}
+  .link{border:0;background:none;padding:0;font:inherit;font-size:11.5px;color:var(--muted);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+  .link:hover{color:var(--ink)}
+  .link:disabled{opacity:.4;cursor:default;text-decoration:none}
+  .sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:16px 18px;border-bottom:1px solid var(--line)}
+  .sec-head h2{font-size:12.5px;font-weight:600;margin:0;letter-spacing:-.01em;white-space:nowrap}
+  .sec-head .note{font-size:11px;color:var(--faint);text-align:right}
+  .pad{padding:18px}
+
+  /* controls */
+  .ctrl{padding:13px 18px;border-top:1px solid var(--line2)}
+  .ctrl:first-of-type{border-top:0}
+  .ctrl-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:9px}
+  .ctrl-lab{font-size:12px;color:var(--ink)}
+  .ctrl-val{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+  .ctrl-num{
+    width:104px;padding:4px 8px;border:1px solid var(--line);background:#fff;
+    font:inherit;font-size:12.5px;color:var(--ink);text-align:right;font-variant-numeric:tabular-nums;border-radius:0;
+  }
+  .ctrl-num:focus{outline:1px solid var(--ink);outline-offset:-1px;border-color:var(--ink)}
+  .ctrl-hint{font-size:10.5px;color:var(--faint);margin-top:7px;line-height:1.55}
+  .ctrl .row{display:flex;gap:8px;align-items:center}
+  .ctrl input[type=number]{
+    width:100%;padding:7px 9px;border:1px solid var(--line);background:#fff;color:var(--ink);
+    font:inherit;font-size:12.5px;font-variant-numeric:tabular-nums;border-radius:0;appearance:none;
+  }
+  .ctrl input[type=number]:focus{outline:1px solid var(--ink);outline-offset:-1px;border-color:var(--ink)}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:16px;background:transparent;margin:0;cursor:pointer;display:block}
+  input[type=range]::-webkit-slider-runnable-track{height:2px;background:#DEDEDE}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--ink);margin-top:-5px;border:0}
+  input[type=range]::-moz-range-track{height:2px;background:#DEDEDE}
+  input[type=range]::-moz-range-thumb{width:12px;height:12px;border:0;border-radius:50%;background:var(--ink)}
+  input[type=range]:focus{outline:none}
+  input[type=range]:focus::-webkit-slider-thumb{box-shadow:0 0 0 3px rgba(17,17,17,.14)}
+
+  .subhead{padding:14px 18px 8px;border-top:1px solid var(--line);font-size:10.5px;letter-spacing:.12em;color:var(--faint);text-transform:uppercase}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .mini-lab{font-size:10.5px;color:var(--muted);margin-bottom:4px;display:block}
+
+  .seg{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line)}
+  .seg label{position:relative;display:block;padding:9px 6px;font-size:11.5px;color:var(--muted);cursor:pointer;text-align:center;transition:background .12s,color .12s}
+  .seg label+label{border-left:1px solid var(--line)}
+  .seg label input{position:absolute;opacity:0;pointer-events:none}
+  .seg label.on{background:var(--ink);color:#fff}
+  .seg-cap{font-size:10.5px;color:var(--faint);margin-top:7px;line-height:1.55}
+
+  /* kpi */
+  .kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line)}
+  .kpi{background:#fff;padding:16px 18px;min-width:0}
+  .kpi .k{font-size:10.5px;color:var(--muted);letter-spacing:.02em}
+  .kpi .v{font-size:19px;letter-spacing:-.02em;margin-top:7px;font-variant-numeric:tabular-nums;line-height:1.25;word-break:break-all}
+  .kpi .v.long{font-size:14.5px;letter-spacing:0}
+  .kpi .s{font-size:11px;color:var(--faint);margin-top:5px;font-variant-numeric:tabular-nums}
+  @media (max-width:660px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.kpi{padding:13px 14px}.kpi .v{font-size:16px}}
+
+  /* chart */
+  .chart-wrap{position:relative;padding:8px 10px 4px}
+  #chart{display:block;width:100%;height:auto}
+  .legend{display:flex;flex-wrap:wrap;gap:16px;padding:4px 18px 16px;font-size:11px;color:var(--muted)}
+  .legend i{display:inline-block;width:14px;height:0;border-top:2px solid #111;vertical-align:middle;margin-right:6px}
+  .legend i.dash{border-top:1px solid #B9B9B9}
+  .legend i.vline{border-top:1px dashed #C9C9C9;width:12px}
+  .legend button{border:0;background:none;font:inherit;font-size:11px;color:var(--muted);cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:0}
+  .legend button:hover{color:var(--ink)}
+  .tip{
+    position:absolute;pointer-events:none;background:var(--ink);color:#fff;padding:8px 10px;
+    font-size:11px;line-height:1.65;white-space:nowrap;transform:translate(-50%,calc(-100% - 10px));
+    opacity:0;transition:opacity .1s;z-index:3;font-variant-numeric:tabular-nums;
+  }
+  .tip.on{opacity:1}
+  .tip b{display:block;font-weight:600;font-size:11px;margin-bottom:2px}
+
+  /* play */
+  .play{padding:18px}
+  .play-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+  .dayline{font-size:12px;color:var(--muted);margin-top:6px}
+  .dayline .num{font-size:34px;font-weight:600;letter-spacing:-.04em;color:var(--ink);line-height:1;font-variant-numeric:tabular-nums}
+  .dayline .of{font-size:13px;color:var(--faint);margin-left:2px}
+  .potbox{text-align:right}
+  .potval{font-size:22px;font-weight:600;letter-spacing:-.03em;margin-top:5px;font-variant-numeric:tabular-nums}
+  .timeline{display:flex;gap:2px;margin:16px 0 18px}
+  .timeline span{flex:1;height:5px;background:var(--line2)}
+  .timeline span.held{background:var(--ink)}
+  .timeline span.now{background:#fff;border:1px solid var(--ink);height:7px;margin-top:-1px}
+  .timeline span.fail{background:var(--danger)}
+
+  .choices{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .choice{border:1px solid var(--line);padding:14px 15px 15px}
+  .choice.hold{background:#fff}
+  .choice.open{background:var(--panel)}
+  .choice .lab{font-size:10.5px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+  .choice .big{font-size:17px;font-weight:600;letter-spacing:-.02em;margin-top:8px;font-variant-numeric:tabular-nums;word-break:break-all}
+  .choice .sub{font-size:11.5px;color:var(--muted);margin-top:3px;font-variant-numeric:tabular-nums}
+  .choice .btn{margin-top:12px}
+  @media (max-width:560px){.choices{grid-template-columns:1fr}.dayline .num{font-size:28px}}
+
+  .btn{
+    display:block;width:100%;padding:11px 14px;border:1px solid var(--ink);background:#fff;color:var(--ink);
+    font:inherit;font-size:12.5px;cursor:pointer;transition:background .12s,color .12s,border-color .12s;border-radius:0;
+  }
+  .btn:hover{background:#F3F3F3}
+  .btn,.link,.seg label,input,button{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+  .btn:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+  .btn.primary{background:var(--ink);color:#fff}
+  .btn.primary:hover{background:#000}
+  .btn.ghost{border-color:var(--line);color:var(--muted)}
+  .btn.ghost:hover{background:var(--panel);color:var(--ink)}
+  .btn.danger{color:var(--danger);border-color:#E2C7C4}
+  .btn.danger:hover{background:#FBF5F4}
+  .btn:disabled{opacity:.45;cursor:default}
+
+  .psy{margin-top:20px;border-top:1px solid var(--line2);padding-top:16px}
+  .psy-row{display:grid;grid-template-columns:118px 1fr 92px;gap:10px;align-items:center;font-size:11.5px;color:var(--muted);margin-top:8px}
+  .psy-row .bar{height:6px;background:var(--line2);position:relative}
+  .psy-row .bar span{position:absolute;left:0;top:0;bottom:0;background:var(--ink);transition:width .25s ease}
+  .psy-row.loss .bar span{background:#BDBDBD}
+  .psy-row .val{text-align:right;font-variant-numeric:tabular-nums;color:var(--ink)}
+  .psy-note{font-size:12px;color:var(--muted);margin:12px 0 0;line-height:1.7}
+  @media (max-width:560px){.psy-row{grid-template-columns:96px 1fr 78px;font-size:11px}}
+
+  .facts{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);margin-top:16px;border:1px solid var(--line)}
+  .fact{background:#fff;padding:11px 13px}
+  .fact .k{font-size:10.5px;color:var(--muted)}
+  .fact .v{font-size:13px;margin-top:4px;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+  .fact .s{font-size:10.5px;color:var(--faint);margin-top:2px}
+  @media (max-width:560px){.facts{grid-template-columns:1fr 1fr}.fact:last-child{grid-column:span 2}}
+
+  .play-foot{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:14px;flex-wrap:wrap}
+  .play-foot .hint{font-size:10.5px;color:var(--faint)}
+  .play-foot .actions{display:flex;gap:14px}
+  .result{border:1px solid var(--ink);padding:16px 18px;margin-top:18px}
+  .result.fail{border-color:#DCC3C0}
+  .result .r-lab{font-size:10.5px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
+  .result .r-big{font-size:24px;font-weight:600;letter-spacing:-.03em;margin-top:8px;font-variant-numeric:tabular-nums;word-break:break-all}
+  .result p{font-size:12.5px;color:var(--muted);margin:10px 0 0;line-height:1.75}
+  .result .btn{margin-top:14px;max-width:220px}
+
+  /* table */
+  .tablewrap{max-height:430px;overflow:auto;-webkit-overflow-scrolling:touch}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  thead th{
+    position:sticky;top:0;background:#fff;z-index:2;
+    font-size:10.5px;font-weight:500;color:var(--muted);text-align:right;
+    padding:9px 14px;border-bottom:1px solid var(--line);white-space:nowrap;
+  }
+  thead th:first-child{text-align:left}
+  tbody td{padding:8px 14px;border-bottom:1px solid var(--line2);text-align:right;font-variant-numeric:tabular-nums;color:var(--ink)}
+  tbody td:first-child{text-align:left;color:var(--muted);width:58px}
+  tbody td.note{text-align:right;color:var(--faint);font-size:10.5px;font-variant-numeric:normal}
+  tbody tr.mark td{background:#FAFAFA}
+  tbody tr.mark td:first-child{color:var(--ink);font-weight:600}
+  tbody tr.over td{color:var(--faint)}
+  tbody tr.over td:first-child{color:var(--faint);font-weight:400}
+  .tag{display:inline-block;padding:1px 6px;border:1px solid var(--line);font-size:10px;color:var(--muted);margin-left:4px;white-space:nowrap;background:#fff}
+  .tag.red{color:var(--danger);border-color:#E2C7C4}
+  @media (max-width:620px){
+    table{table-layout:fixed}
+    thead th, tbody td{padding:7px 6px;font-size:11px}
+    thead th:nth-child(4), tbody td:nth-child(4),
+    thead th:nth-child(5), tbody td:nth-child(5){display:none}
+    thead th:nth-child(1), tbody td:nth-child(1){width:15%}
+    thead th:nth-child(2), tbody td:nth-child(2){width:28%}
+    thead th:nth-child(3), tbody td:nth-child(3){width:31%}
+    thead th:nth-child(6), tbody td:nth-child(6){width:26%}
+    tbody td.note{font-size:9.5px;white-space:normal;line-height:1.5}
+    .tag{margin-left:0;margin-right:2px;white-space:normal}
+  }
+
+  /* analysis */
+  .stage{border:1px solid var(--line);background:#fff;padding:20px 22px}
+  .stage .idx{font-size:10.5px;letter-spacing:.16em;color:var(--faint)}
+  .stage h3{font-size:15.5px;font-weight:600;letter-spacing:-.02em;margin:7px 0 0}
+  .stage .en{font-size:11px;color:var(--faint);margin-top:3px}
+  .stage p{font-size:13px;line-height:1.85;color:#2C2C2C;margin:13px 0 0}
+  .stage dl{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0;margin:15px 0 0;border-top:1px solid var(--line2);font-size:12px}
+  .stage dt{padding:7px 0;color:var(--muted);border-bottom:1px solid var(--line2)}
+  .stage dd{padding:7px 0;margin:0;text-align:right;font-variant-numeric:tabular-nums;border-bottom:1px solid var(--line2)}
+  .stage dd b{font-weight:600}
+  .stage dl .em dt,.stage dl .em dd{color:var(--ink)}
+  .stage dl .gap dt,.stage dl .gap dd{border-bottom:0;padding-bottom:0}
+  @media (max-width:560px){.stage{padding:16px}.stage dl{font-size:11.5px}}
+
+  .assume p{font-size:12px;color:var(--muted);line-height:1.85;margin:0 0 8px;padding-left:14px;position:relative}
+  .assume p:before{content:"";position:absolute;left:0;top:9px;width:4px;height:1px;background:var(--faint)}
+  .assume p:last-child{margin-bottom:0}
+
+  footer{margin-top:28px;font-size:10.5px;color:var(--faint);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div>
+      <div class="eyebrow">행동경제학 사고실험 · 시뮬레이터</div>
+      <h1>디지털 금욕 실험</h1>
+      <p class="lede">인스타그램을 하루 참을 때마다 보상이 커지는 규칙을 직접 돌려보는 도구입니다. 조건을 바꾸면 표와 그래프, 네 단계 분석이 같이 움직입니다.</p>
+    </div>
+    <div class="hmeta" id="hmeta"></div>
+  </header>
+
+  <section class="guide" aria-label="사용법">
+    <div class="guide-head"><span class="g-t">사용법 (3단계)</span><span class="g-n">처음이라면 여기부터</span></div>
+    <div class="guide-grid">
+      <div class="guide-item">
+        <div class="g-num">01</div>
+        <p>왼쪽(모바일에서는 위) <b>조건 설정</b>에서 첫날 보상금·매일 증가 배수·유혹 강도를 조절하면 오른쪽 그래프와 표가 바로 바뀝니다.</p>
+      </div>
+      <div class="guide-item">
+        <div class="g-num">02</div>
+        <p><b>오늘의 선택</b>에서 '오늘은 참는다' 또는 '인스타를 연다' 버튼을 직접 눌러보며 날짜별 심리 변화를 체험해 보세요.</p>
+      </div>
+      <div class="guide-item">
+        <div class="g-num">03</div>
+        <p>아래 <b>사고 구조 네 단계</b>에서 지금 설정한 조건 기준으로 몇 일차에 임계점이 오는지 자동으로 계산해 줍니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="layout">
+    <aside>
+      <div class="card">
+        <div class="card-head"><span>조건 설정</span><button class="link" id="resetAll" type="button">기본값으로</button></div>
+
+        <div class="ctrl">
+          <div class="ctrl-top"><label class="ctrl-lab" for="r0Input">초기 보상금</label><input class="ctrl-num" id="r0Input" type="text" inputmode="numeric" value="1,000원" aria-label="초기 보상금 직접 입력"></div>
+          <input type="range" id="r0Range" min="100" max="10000" step="100" value="1000">
+          <div class="ctrl-hint">1일차에 받는 금액입니다.</div>
+        </div>
+
+        <div class="ctrl">
+          <div class="ctrl-top"><label class="ctrl-lab" for="multInput">일일 증가 배수</label><input class="ctrl-num" id="multInput" type="text" inputmode="decimal" value="2.0×" aria-label="일일 증가 배수 직접 입력"></div>
+          <input type="range" id="multRange" min="1.2" max="3" step="0.1" value="2">
+          <div class="ctrl-hint">하루 지날 때마다 하루 보상이 곱해지는 비율입니다.</div>
+        </div>
+
+        <div class="ctrl">
+          <div class="ctrl-top"><label class="ctrl-lab" for="urgeRange">유혹 강도</label><span class="ctrl-val" id="urgeVal">보통 5</span></div>
+          <input type="range" id="urgeRange" min="1" max="10" step="1" value="5">
+          <div class="ctrl-hint" id="urgeHint">하루 실패 확률 10%로 계산합니다.</div>
+        </div>
+
+        <div class="ctrl">
+          <div class="ctrl-top"><span class="ctrl-lab">실패 처리</span></div>
+          <div class="seg" id="modeSeg">
+            <label class="on" data-mode="A"><input type="radio" name="mode" value="A" checked>전액 몰수</label>
+            <label data-mode="B"><input type="radio" name="mode" value="B">확정 지급</label>
+          </div>
+          <div class="seg-cap">A는 한 번 열면 누적 전부를 잃습니다. B는 그때까지 쌓인 금액을 받고 끝납니다.</div>
+        </div>
+
+        <div class="ctrl">
+          <div class="ctrl-top"><label class="ctrl-lab" for="daysRange">실험 기간</label><span class="ctrl-val" id="daysVal">30일</span></div>
+          <input type="range" id="daysRange" min="10" max="40" step="1" value="30">
+        </div>
+
+        <div class="subhead">내 기준값</div>
+
+        <div class="ctrl">
+          <div class="ctrl-top"><label class="ctrl-lab" for="allowanceInput">한 달 용돈</label></div>
+          <input type="text" inputmode="numeric" id="allowanceInput" value="50,000">
+        </div>
+
+        <div class="ctrl">
+          <div class="grid2">
+            <div>
+              <label class="mini-lab" for="hoursInput">하루 인스타 사용</label>
+              <input type="number" id="hoursInput" value="1.5" min="0" max="12" step="0.5">
+            </div>
+            <div>
+              <label class="mini-lab" for="hourlyInput">시간당 가치</label>
+              <input type="number" id="hourlyInput" value="10320" min="0" step="500">
+            </div>
+          </div>
+          <div class="ctrl-hint">시간당 가치 기본값은 2026년 최저임금입니다. 두 값을 곱해 하루 인스타의 기회비용을 냅니다.</div>
+        </div>
+
+        <div class="ctrl">
+          <div class="ctrl-top"><label class="ctrl-lab" for="budgetInput">지급 가능 예산</label></div>
+          <input type="text" inputmode="numeric" id="budgetInput" value="1,000,000">
+          <div class="ctrl-hint">실제로 지급할 수 있는 상한입니다. 이 금액을 넘는 날부터는 숫자만 남습니다.</div>
+        </div>
+      </div>
+    </aside>
+
+    <main>
+
+      <section class="card">
+        <div class="sec-head"><h2>요약</h2><span class="note" id="kpiNote"></span></div>
+        <div class="kpis" id="kpis"></div>
+      </section>
+
+      <section class="card">
+        <div class="sec-head"><h2>보상 곡선</h2><span class="note" id="chartNote"></span></div>
+        <div class="chart-wrap">
+          <svg id="chart" viewBox="0 0 840 340" role="img" aria-label="일자별 누적 보상과 하루 보상 그래프"></svg>
+          <div class="tip" id="tip"></div>
+        </div>
+        <div class="legend">
+          <span><i></i>누적 보상</span>
+          <span><i class="dash"></i>하루 보상</span>
+          <span><i class="vline"></i>주요 지점</span>
+          <button type="button" id="logToggle">로그 눈금으로 보기</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="sec-head"><h2>오늘의 선택</h2><span class="note">Day 1부터 직접 눌러보기</span></div>
+        <div class="play">
+          <div class="play-head">
+            <div>
+              <div class="eyebrow">진행</div>
+              <div class="dayline"><span class="num" id="pDay">1</span><span class="of" id="pOf">/ 30일</span></div>
+            </div>
+            <div class="potbox">
+              <div class="eyebrow" style="font-size:10.5px;letter-spacing:.1em;color:#666">지금까지 쌓인 금액</div>
+              <div class="potval" id="pPot">0원</div>
+            </div>
+          </div>
+
+          <div class="timeline" id="pTimeline"></div>
+
+          <div class="choices" id="choices">
+            <div class="choice hold">
+              <div class="lab">참는다</div>
+              <div class="big" id="pHoldGain">+1,000원</div>
+              <div class="sub" id="pHoldPot">누적 1,000원</div>
+              <button class="btn primary" id="btnHold" type="button">오늘은 참는다</button>
+            </div>
+            <div class="choice open">
+              <div class="lab">인스타를 연다</div>
+              <div class="big" id="pOpenGet">0원</div>
+              <div class="sub" id="pOpenSub">누적 전액 몰수, 실험 종료</div>
+              <button class="btn danger" id="btnOpen" type="button">인스타를 연다</button>
+            </div>
+          </div>
+
+          <div class="psy" id="psy">
+            <div class="eyebrow" style="font-size:10.5px;letter-spacing:.1em;color:#666">지금의 심리 저울</div>
+            <div class="psy-row loss">
+              <div>참는 쪽 무게</div>
+              <div class="bar"><span id="barHold" style="width:0%"></span></div>
+              <div class="val" id="valHold">0원</div>
+            </div>
+            <div class="psy-row">
+              <div>여는 쪽 무게</div>
+              <div class="bar"><span id="barOpen" style="width:0%"></span></div>
+              <div class="val" id="valOpen">0원</div>
+            </div>
+            <p class="psy-note" id="psyNote"></p>
+          </div>
+
+          <div class="facts" id="facts">
+            <div class="fact">
+              <div class="k">오늘 여는 비용</div>
+              <div class="v" id="fCost">1,000원</div>
+              <div class="s" id="fCostSub">하루 보상 1,000원</div>
+            </div>
+            <div class="fact">
+              <div class="k">내일 보상의 오늘 가치</div>
+              <div class="v" id="fPV">1,333원</div>
+              <div class="s" id="fPVSub">내일 2,000원을 쌍곡할인</div>
+            </div>
+            <div class="fact">
+              <div class="k">오늘 참을 확률</div>
+              <div class="v" id="fSurvive">90%</div>
+              <div class="s" id="fSurviveSub">여기까지 생존 100%</div>
+            </div>
+          </div>
+
+          <div class="result" id="pResult" hidden></div>
+
+          <div class="play-foot">
+            <div class="hint">조건을 바꾸면 같은 날짜 기준으로 숫자가 다시 계산됩니다.</div>
+            <div class="actions">
+              <button class="link" id="btnUndo" type="button">한 걸음 되돌리기</button>
+              <button class="link" id="btnRestart" type="button">처음부터</button>
+              <button class="link" id="btnAllHold" type="button">끝까지 참기</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="sec-head"><h2>일자별 계산</h2><span class="note" id="tableNote"></span></div>
+        <div class="tablewrap">
+          <table>
+            <thead>
+              <tr>
+                <th>일차</th>
+                <th>하루 보상</th>
+                <th>누적 보상</th>
+                <th>여는 비용</th>
+                <th>하루 보상 ÷ 월 용돈</th>
+                <th>비고</th>
+              </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <div class="sec-head" style="padding:6px 2px 12px;border-bottom:0"><h2>사고 구조 네 단계</h2><span class="note">위 설정값으로 계산한 결과입니다</span></div>
+        <div id="stages"></div>
+      </section>
+
+      <section class="card assume">
+        <div class="sec-head"><h2>모형 가정</h2><span class="note">숫자가 어디서 나왔는지</span></div>
+        <div class="pad" id="assumeList"></div>
+      </section>
+
+      <footer>
+        <span>디지털 금욕 실험 시뮬레이터</span>
+        <span>오프라인 단독 실행 · 외부 라이브러리 없음</span>
+      </footer>
+    </main>
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  var LAMBDA = 2.25;           /* 손실회피 계수 (Kahneman & Tversky 1992 추정치) */
+  var DEFAULTS = { r0:1000, mult:2.0, urge:5, mode:'A', days:30,
+                   allowance:50000, hours:1.5, hourly:10320, budget:1000000 };
+  var S = Object.assign({}, DEFAULTS, { chartLog:false });
+  var play = { day:1, status:'playing', failDay:null, history:[] };
+
+  var $ = function(id){ return document.getElementById(id); };
+
+  /* ---------- 숫자 ---------- */
+  function R(n){ return S.r0 * Math.pow(S.mult, n-1); }
+  function C(n){
+    if(n <= 0) return 0;
+    var m = S.mult;
+    if(Math.abs(m-1) < 1e-9) return S.r0*n;
+    return S.r0 * (Math.pow(m,n) - 1) / (m-1);
+  }
+  function costInsta(){ return S.hourly * S.hours; }
+  function urgeValue(){ return S.urge * costInsta(); }
+  function pHaz(){ return Math.min(0.6, S.urge * 0.02); }
+  function kHyp(){ return S.urge * 0.1; }
+  function pvNext(n){
+    var d = Math.min(n+1, S.days);
+    return R(d) / (1 + kHyp());
+  }
+  /* 열면 잃는 금액: A는 누적 전액, B는 그날 하루치 */
+  function openCost(n){ return S.mode === 'A' ? C(n) : R(n); }
+  function openPayout(n){ return S.mode === 'A' ? 0 : C(n-1); }
+
+  function commas(n){ return Math.round(n).toLocaleString('ko-KR'); }
+  function num3(x){
+    if(x >= 1000) return commas(x);
+    if(x >= 100) return String(Math.round(x));
+    var s = x.toFixed(2);
+    return s.replace(/\.?0+$/,'');
+  }
+  var SUP = {'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹','-':'⁻'};
+  function sci(v){
+    var e = Math.floor(Math.log10(Math.abs(v)));
+    var mant = v / Math.pow(10,e);
+    var es = String(e).split('').map(function(c){ return SUP[c] || c; }).join('');
+    return mant.toFixed(1) + '×10' + es;
+  }
+  function fmtWon(v){
+    if(!isFinite(v)) return '–';
+    var s = v < 0 ? '-' : '', a = Math.abs(v);
+    if(a >= 1e20) return s + sci(a) + '원';
+    if(a >= 1e16) return s + num3(a/1e16) + '경원';
+    if(a >= 1e12) return s + num3(a/1e12) + '조원';
+    return s + commas(a) + '원';
+  }
+  function fmtShort(v){
+    var a = Math.abs(v);
+    if(a >= 1e20) return sci(a);
+    if(a >= 1e16) return num3(a/1e16) + '경';
+    if(a >= 1e12) return num3(a/1e12) + '조';
+    if(a >= 1e8)  return num3(a/1e8) + '억';
+    if(a >= 1e4)  return num3(a/1e4) + '만';
+    return commas(a);
+  }
+  function fmtRatio(x){
+    if(!isFinite(x)) return '–';
+    if(x === 0) return '0';
+    var a = Math.abs(x);
+    if(a >= 1e12) return num3(x/1e12) + '조';
+    if(a >= 1e8) return num3(x/1e8) + '억';
+    if(a >= 1e4) return num3(x/1e4) + '만';
+    if(a >= 100) return commas(x);
+    if(a >= 10) return x.toFixed(1);
+    return x.toFixed(2);
+  }
+  function fmtPct(x){ return (x*100).toFixed(x*100 < 10 ? 1 : 0) + '%'; }
+
+  function guessMult(v){
+    if(v >= 1e16) return num3(v/1e16)+'경배';
+    if(v >= 1e12) return num3(v/1e12)+'조배';
+    if(v >= 1e8) return num3(v/1e8)+'억배';
+    if(v >= 1e4) return num3(v/1e4)+'만배';
+    return commas(v)+'배';
+  }
+
+  /* ---------- 임계값 ---------- */
+  function firstDay(pred, max){
+    max = max || 200;
+    for(var n = 1; n <= max; n++){ if(pred(n)) return n; }
+    return null;
+  }
+  function thresholds(){
+    var t = {};
+    t.cost = firstDay(function(n){ return R(n) >= costInsta(); });
+    t.allow = firstDay(function(n){ return R(n) >= S.allowance; });
+    t.year = firstDay(function(n){ return R(n) >= S.allowance*12; });
+    t.flip = firstDay(function(n){ return LAMBDA * openCost(n) >= urgeValue(); });
+    t.budget = firstDay(function(n){ return C(n) > S.budget; });
+    t.eok = firstDay(function(n){ return C(n) >= 1e8; });
+    t.jo = firstDay(function(n){ return C(n) >= 1e12; });
+    t.world = firstDay(function(n){ return C(n) >= 1.6e17; });
+    return t;
+  }
+  function dayTxt(d, N){
+    if(!d) return '기간 내 없음';
+    return 'D+' + d + (d > N ? ' <span style="color:#B0B0B0">(기간 밖)</span>' : '');
+  }
+  function evBest(){
+    var p = pHaz(), best = { n:1, ev:-1 };
+    for(var n = 1; n <= S.days; n++){
+      var ev = Math.min(C(n), S.budget) * Math.pow(1-p, n);
+      if(ev > best.ev) best = { n:n, ev:ev };
+    }
+    return best;
+  }
+
+  /* ---------- 렌더: 헤더 ---------- */
+  function renderHeader(){
+    $('hmeta').innerHTML =
+      '기간 <b>' + S.days + '일</b><br>' +
+      '배수 <b>' + S.mult.toFixed(1) + '×</b><br>' +
+      '실패 처리 <b>' + (S.mode === 'A' ? '전액 몰수' : '확정 지급') + '</b>';
+  }
+
+  /* ---------- 렌더: KPI ---------- */
+  function renderKPI(){
+    var t = thresholds();
+    var p = pHaz();
+    var surv = Math.pow(1-p, S.days);
+    var finalC = C(S.days);
+    var budgetRatio = S.budget > 0 ? finalC / S.budget : null;
+
+    var items = [
+      { k:'D+' + S.days + ' 최종 누적', v: fmtWon(finalC),
+        s: budgetRatio === null ? '예산 0원' : '예산의 ' + fmtRatio(budgetRatio) + '배' },
+      { k:'D+' + S.days + ' 하루 보상', v: fmtWon(R(S.days)),
+        s:'1일차의 ' + guessMult(Math.pow(S.mult, S.days-1)) },
+      { k:'기회비용 돌파', v: t.cost ? 'D+' + t.cost : '기간 내 없음',
+        s: t.cost ? '그날 보상 ' + fmtWon(R(t.cost)) : '배수를 더 올려야 합니다' },
+      { k:'월 용돈 돌파', v: t.allow ? 'D+' + t.allow : '기간 내 없음',
+        s: t.allow ? fmtWon(R(t.allow)) + ' > ' + fmtWon(S.allowance) : '기간 내 도달 안 함' },
+      { k:'지급 한도 도달', v: t.budget ? 'D+' + t.budget : '기간 내 없음',
+        s: t.budget ? '예산 ' + fmtWon(S.budget) + ' 초과' : '예산 안에서 끝납니다' },
+      { k:'완주 확률', v: fmtPct(surv),
+        s:'하루 실패 ' + fmtPct(p) + ' 기준' }
+    ];
+    $('kpis').innerHTML = items.map(function(it){
+      var cls = String(it.v).length > 13 ? 'v long' : 'v';
+      return '<div class="kpi"><div class="k">' + it.k + '</div><div class="' + cls + '">' +
+             it.v + '</div><div class="s">' + it.s + '</div></div>';
+    }).join('');
+    $('kpiNote').textContent = '누적은 매일 보상의 합입니다';
+  }
+
+  /* ---------- 렌더: 차트 ---------- */
+  var chartGeo = null;
+
+  function niceStep(range, count){
+    var raw = range / count;
+    var p = Math.pow(10, Math.floor(Math.log10(raw)));
+    var m = raw / p;
+    var s = m <= 1 ? 1 : (m <= 2 ? 2 : (m <= 2.5 ? 2.5 : (m <= 5 ? 5 : 10)));
+    return s * p;
+  }
+
+  function renderChart(){
+    var svg = $('chart');
+    while(svg.firstChild) svg.removeChild(svg.firstChild);
+    var cw = svg.parentElement.clientWidth || 840;
+    var compact = cw < 560;
+    var W = compact ? 420 : 840;
+    var H = compact ? 262 : 340;
+    var pad = compact ? { l:42, r:12, t:30, b:32 } : { l:64, r:20, t:34, b:42 };
+    var FS = compact ? 10.5 : 10;
+    var iw = W - pad.l - pad.r, ih = H - pad.t - pad.b;
+    var N = S.days, pts = [], n;
+    for(n = 1; n <= N; n++) pts.push({ n:n, c:C(n), r:R(n) });
+
+    var maxC = pts[pts.length-1].c, minC = pts[0].c;
+    var log = S.chartLog;
+    var lo, hi;
+    if(log){ lo = Math.log10(minC*0.85); hi = Math.log10(maxC*1.15); }
+    else { lo = 0; hi = maxC*1.06; }
+    var tt = thresholds();
+
+    function yOf(v){
+      var f = log ? (Math.log10(Math.max(v, minC*0.85)) - lo) / (hi - lo) : (v - lo) / (hi - lo);
+      return pad.t + ih - f*ih;
+    }
+    function xOf(k){ return N === 1 ? pad.l + iw/2 : pad.l + (k-1)/(N-1)*iw; }
+
+    var NS = 'http://www.w3.org/2000/svg';
+    function el(tag, attrs, text){
+      var e = document.createElementNS(NS, tag);
+      for(var k in attrs){ if(attrs.hasOwnProperty(k)) e.setAttribute(k, attrs[k]); }
+      if(text != null) e.textContent = text;
+      return e;
+    }
+
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+
+    /* 세로 격자 */
+    var ticks = [], i, v;
+    if(log){
+      var e0 = Math.floor(lo), e1 = Math.ceil(hi);
+      var stp = Math.max(1, Math.floor((e1 - e0) / 5));
+      for(i = e0; i <= e1; i += stp){ ticks.push(Math.pow(10, i)); }
+    } else {
+      var stepY = niceStep(hi, 4);
+      for(v = 0; v <= hi + stepY*0.001; v += stepY){ ticks.push(v); }
+    }
+    ticks.forEach(function(tv){
+      var gy = yOf(tv);
+      if(gy < pad.t - 0.5 || gy > pad.t + ih + 0.5) return;
+      svg.appendChild(el('line', { x1:pad.l, x2:pad.l+iw, y1:gy, y2:gy, stroke:'#EFEFEF', 'stroke-width':1 }));
+      svg.appendChild(el('text', { x:pad.l-8, y:gy+3.5, 'text-anchor':'end', 'font-size':FS, fill:'#9A9A9A' }, fmtShort(tv)));
+    });
+
+    /* 가로축 */
+    var stepX = compact ? (N <= 10 ? 2 : 5) : (N <= 12 ? 1 : (N <= 24 ? 3 : 5));
+    for(n = 1; n <= N; n++){
+      if(n !== 1 && n % stepX !== 0 && n !== N) continue;
+      svg.appendChild(el('line', { x1:xOf(n), x2:xOf(n), y1:pad.t+ih, y2:pad.t+ih+4, stroke:'#DADADA' }));
+      svg.appendChild(el('text', { x:xOf(n), y:pad.t+ih+16, 'text-anchor':'middle', 'font-size':FS, fill:'#9A9A9A' }, 'D+' + n));
+    }
+
+    /* 주요 지점 */
+    var marks = [
+      { d:tt.cost, label:'기회비용' },
+      { d:tt.allow, label:'월 용돈' },
+      { d:tt.budget, label:'예산 한도' }
+    ];
+    var mi = 0;
+    marks.forEach(function(mk){
+      if(!mk.d || mk.d > N) return;
+      var x = xOf(mk.d);
+      svg.appendChild(el('line', { x1:x, x2:x, y1:pad.t, y2:pad.t+ih, stroke:'#D2D2D2', 'stroke-width':1, 'stroke-dasharray':'3 3' }));
+      var anchor = mk.d >= N * 0.85 ? 'end' : 'middle';
+      var ty = pad.t - 7 - (mi % 2) * 11;
+      svg.appendChild(el('text', { x:x, y:ty, 'text-anchor':anchor, 'font-size':9.5, fill:'#8A8A8A' }, mk.label));
+      mi++;
+    });
+
+    /* 하루 보상 */
+    var dpath = pts.map(function(p, idx){ return (idx ? 'L' : 'M') + xOf(p.n).toFixed(1) + ',' + yOf(p.r).toFixed(1); }).join(' ');
+    svg.appendChild(el('path', { d:dpath, fill:'none', stroke:'#C2C2C2', 'stroke-width':1 }));
+
+    /* 누적 영역 + 선 */
+    var area = 'M' + xOf(1).toFixed(1) + ',' + (pad.t+ih).toFixed(1) + ' ';
+    pts.forEach(function(p){ area += 'L' + xOf(p.n).toFixed(1) + ',' + yOf(p.c).toFixed(1) + ' '; });
+    area += 'L' + xOf(N).toFixed(1) + ',' + (pad.t+ih).toFixed(1) + ' Z';
+    svg.appendChild(el('path', { d:area, fill:'#111111', 'fill-opacity':'0.05', stroke:'none' }));
+    var cpath = pts.map(function(p, idx){ return (idx ? 'L' : 'M') + xOf(p.n).toFixed(1) + ',' + yOf(p.c).toFixed(1); }).join(' ');
+    svg.appendChild(el('path', { d:cpath, fill:'none', stroke:'#111111', 'stroke-width':1.75, 'stroke-linejoin':'round' }));
+
+    var last = pts[pts.length-1];
+    svg.appendChild(el('circle', { cx:xOf(last.n), cy:yOf(last.c), r:2.8, fill:'#111111' }));
+
+    /* 호버 레이어 */
+    var cross = el('line', { x1:0, x2:0, y1:pad.t, y2:pad.t+ih, stroke:'#111111', 'stroke-width':1, 'stroke-dasharray':'2 3', opacity:0 });
+    var dotC = el('circle', { cx:0, cy:0, r:3.5, fill:'#111111', opacity:0 });
+    var dotR = el('circle', { cx:0, cy:0, r:2.5, fill:'#8A8A8A', opacity:0 });
+    svg.appendChild(cross); svg.appendChild(dotR); svg.appendChild(dotC);
+    var hit = el('rect', { x:pad.l, y:pad.t, width:iw, height:ih, fill:'transparent', style:'cursor:crosshair' });
+    svg.appendChild(hit);
+
+    chartGeo = { W:W, pad:pad, iw:iw, N:N, xOf:xOf, yOf:yOf, cross:cross, dotC:dotC, dotR:dotR };
+
+    hit.addEventListener('pointermove', onChartMove);
+    hit.addEventListener('pointerleave', onChartLeave);
+
+    var flatDay = 1, fi;
+    for(fi = 0; fi < pts.length; fi++){ if(pts[fi].c >= maxC * 0.01){ flatDay = pts[fi].n; break; } }
+
+    $('chartNote').textContent = log
+      ? '세로축 로그 눈금 · 누적과 하루 보상을 같이 봅니다'
+      : '선형 눈금이라 D+' + flatDay + ' 전까지는 바닥에 붙어 있습니다. 로그로 바꾸면 전체 구간이 보입니다.';
+  }
+
+  function onChartMove(e){
+    if(!chartGeo) return;
+    var svg = $('chart'), rect = svg.getBoundingClientRect();
+    var g = chartGeo;
+    var sx = (e.clientX - rect.left) * (g.W / rect.width);
+    var k = Math.round((sx - g.pad.l) / g.iw * (g.N - 1)) + 1;
+    k = Math.max(1, Math.min(g.N, k));
+    var x = g.xOf(k), yc = g.yOf(C(k)), yr = g.yOf(R(k));
+    g.cross.setAttribute('x1', x); g.cross.setAttribute('x2', x); g.cross.setAttribute('opacity', 0.35);
+    g.dotC.setAttribute('cx', x); g.dotC.setAttribute('cy', yc); g.dotC.setAttribute('opacity', 1);
+    g.dotR.setAttribute('cx', x); g.dotR.setAttribute('cy', yr); g.dotR.setAttribute('opacity', 1);
+
+    var tip = $('tip');
+    tip.innerHTML = '<b>Day ' + k + '</b>하루 ' + fmtWon(R(k)) + '<br>누적 ' + fmtWon(C(k));
+    var wrapRect = svg.parentElement.getBoundingClientRect();
+    tip.style.left = (x / g.W * rect.width) + 'px';
+    tip.style.top = ((e.clientY - wrapRect.top)) + 'px';
+    tip.classList.add('on');
+  }
+  function onChartLeave(){
+    if(!chartGeo) return;
+    chartGeo.cross.setAttribute('opacity', 0);
+    chartGeo.dotC.setAttribute('opacity', 0);
+    chartGeo.dotR.setAttribute('opacity', 0);
+    $('tip').classList.remove('on');
+  }
+
+  /* ---------- 렌더: 표 ---------- */
+  function renderTable(){
+    var t = thresholds(), html = '', n;
+    var labels = {};
+    function add(day, text, red){
+      if(!day) return;
+      if(!labels[day]) labels[day] = [];
+      labels[day].push({ text:text, red:!!red });
+    }
+    add(t.cost, '기회비용 돌파');
+    add(t.allow, '월 용돈 돌파');
+    add(t.flip, '저울 역전');
+    add(t.budget, '예산 초과', true);
+
+    for(n = 1; n <= S.days; n++){
+      var c = C(n), r = R(n), lost = openCost(n);
+      var tags = labels[n] || [];
+      var over = t.budget && n >= t.budget;
+      var cls = (over ? 'over' : '') + (tags.length ? ' mark' : '');
+      function ttl(v){ return v < 1e15 ? commas(v) + '원' : ''; }
+      html += '<tr class="' + cls + '">' +
+        '<td>D+' + n + '</td>' +
+        '<td title="' + ttl(r) + '">' + fmtWon(r) + '</td>' +
+        '<td title="' + ttl(c) + '">' + fmtWon(c) + '</td>' +
+        '<td title="' + ttl(lost) + '">' + fmtWon(lost) + '</td>' +
+        '<td>' + (S.allowance > 0 ? fmtRatio(r/S.allowance) + '배' : '–') + '</td>' +
+        '<td class="note">' + tags.map(function(tg){
+          return '<span class="tag' + (tg.red ? ' red' : '') + '">' + tg.text + '</span>';
+        }).join('') + '</td>' +
+      '</tr>';
+    }
+    $('tbody').innerHTML = html;
+    $('tableNote').textContent = (S.mode === 'A' ? 'A · 여는 비용 = 참았을 때 받을 금액' : 'B · 여는 비용 = 그날 하루치');
+  }
+
+  /* ---------- 렌더: 플레이 ---------- */
+  function pot(){
+    if(play.status === 'failed') return play.failDay ? openPayout(play.failDay) : 0;
+    if(play.status === 'done') return C(S.days);
+    return C(play.day - 1);
+  }
+
+  function renderPlay(){
+    if(play.day > S.days && play.status === 'playing'){ play.status = 'done'; }
+    var alive = play.status === 'playing';
+    var d = Math.min(play.day, S.days);
+
+    $('pDay').textContent = play.status === 'done' ? S.days : d;
+    $('pOf').textContent = '/ ' + S.days + '일';
+
+    /* 타임라인 */
+    var tl = '';
+    for(var n = 1; n <= S.days; n++){
+      var cls = '';
+      if(play.status === 'failed' && play.failDay === n) cls = 'fail';
+      else if(play.status === 'done' || n < play.day) cls = 'held';
+      else if(n === play.day && alive) cls = 'now';
+      tl += '<span class="' + cls + '"></span>';
+    }
+    $('pTimeline').innerHTML = tl;
+
+    var p = pHaz();
+    var holdGain = R(d);
+    var newPot = C(d);
+    var getNow = openPayout(d);
+    var cost = openCost(d);
+    var holdWeight = LAMBDA * cost;
+    var openWeight = urgeValue();
+    var maxW = Math.max(holdWeight, openWeight, 1);
+
+    if(alive){
+      $('pPot').textContent = fmtWon(C(d-1));
+      $('pHoldGain').textContent = '+' + fmtWon(holdGain);
+      $('pHoldPot').textContent = '누적 ' + fmtWon(newPot);
+      $('pOpenGet').textContent = S.mode === 'A' ? '0원' : fmtWon(getNow);
+      $('pOpenSub').textContent = S.mode === 'A'
+        ? '잔고 ' + fmtWon(C(d-1)) + ' 몰수, 실험 종료'
+        : '확정 지급, 실험 종료';
+    } else {
+      $('pPot').textContent = fmtWon(pot());
+    }
+
+    $('barHold').style.width = (holdWeight/maxW*100).toFixed(1) + '%';
+    $('barOpen').style.width = (openWeight/maxW*100).toFixed(1) + '%';
+    $('valHold').textContent = fmtWon(holdWeight);
+    $('valOpen').textContent = fmtWon(openWeight);
+
+    if(alive){
+      if(openWeight > holdWeight){
+        $('psyNote').textContent = '지금 열면 ' + fmtWon(cost) + '을 포기하지만, 아직은 열고 싶은 마음이 더 큽니다. 이 구간에서는 계산보다 손이 먼저 나갑니다.';
+      } else {
+        $('psyNote').textContent = '참는 쪽이 더 무거워졌습니다. 여는 데 ' + fmtWon(cost) + '이 걸리고, 잃는 아픔으로 치면 ' + fmtWon(holdWeight) + '입니다. 여는 쪽은 여전히 ' + fmtWon(openWeight) + '어치입니다.';
+      }
+    } else if(play.status === 'failed'){
+      $('psyNote').textContent = '실험이 끝났습니다. 아래 결과를 확인하고 처음부터 다시 해보세요.';
+    } else {
+      $('psyNote').textContent = '기간을 모두 채웠습니다.';
+    }
+
+    $('fCost').textContent = fmtWon(cost);
+    $('fCostSub').textContent = S.mode === 'A'
+      ? '잔고 ' + fmtWon(C(d-1)) + ' 몰수'
+      : '하루 보상 ' + fmtWon(R(d)) + ' 포기';
+    $('fPV').textContent = d >= S.days ? '–' : fmtWon(pvNext(d));
+    $('fPVSub').textContent = d >= S.days
+      ? '마지막 날입니다'
+      : '내일 ' + fmtWon(R(d+1)) + '을 쌍곡할인';
+    $('fSurvive').textContent = fmtPct(1-p);
+    $('fSurviveSub').textContent = '여기까지 ' + fmtPct(Math.pow(1-p, Math.max(0, d-1)));
+
+    $('btnHold').disabled = !alive;
+    $('btnOpen').disabled = !alive;
+    $('btnUndo').disabled = play.history.length === 0;
+    $('choices').style.display = alive ? '' : 'none';
+    $('psy').style.display = alive ? '' : 'none';
+    $('facts').style.display = alive ? '' : 'none';
+
+    var box = $('pResult');
+    if(play.status === 'playing'){
+      box.hidden = true; box.innerHTML = '';
+    } else {
+      box.hidden = false;
+      if(play.status === 'failed'){
+        var f = play.failDay;
+        var got = openPayout(f);
+        box.className = 'result fail';
+        box.innerHTML =
+          '<div class="r-lab">실험 종료 · D+' + f + '</div>' +
+          '<div class="r-big">' + fmtWon(got) + '</div>' +
+          '<p>' + (S.mode === 'A'
+            ? 'D+' + f + '에 인스타를 열어 잔고 ' + fmtWon(C(f-1)) + '을 몰수당했습니다. 하루만 더 참았으면 ' + fmtWon(C(f)) + '이었습니다.'
+            : 'D+' + f + '에 인스타를 열어 전날까지 쌓인 ' + fmtWon(got) + '을 받고 끝났습니다. 하루만 더 참았으면 ' + fmtWon(C(f)) + '이었습니다.') +
+          '</p>' +
+          '<button class="btn" id="btnAgain" type="button">처음부터 다시</button>';
+      } else {
+        var finalWon = C(S.days);
+        var tt = thresholds();
+        box.className = 'result';
+        box.innerHTML =
+          '<div class="r-lab">기간 완주 · D+' + S.days + '</div>' +
+          '<div class="r-big">' + fmtWon(finalWon) + '</div>' +
+          '<p>' + (tt.budget && tt.budget <= S.days
+            ? '다만 D+' + tt.budget + '에 지급 가능 예산(' + fmtWon(S.budget) + ')을 넘었습니다. 실제 실험이라면 여기서 끝났어야 합니다. 남은 날의 숫자는 약속할 수 없는 금액입니다.'
+            : '예산 ' + fmtWon(S.budget) + ' 안에서 끝났습니다. 이 설정은 실제로 지급 가능한 실험입니다.') +
+          '</p>' +
+          '<button class="btn" id="btnAgain" type="button">처음부터 다시</button>';
+      }
+      var again = $('btnAgain');
+      if(again) again.addEventListener('click', function(){ reset(true); });
+    }
+  }
+
+  function reset(keepScroll){
+    play = { day:1, status:'playing', failDay:null, history:[] };
+    renderPlay();
+    if(!keepScroll){ try{ document.querySelector('.play').scrollIntoView({behavior:'smooth', block:'center'}); }catch(e){} }
+  }
+
+  /* ---------- 렌더: 4단계 ---------- */
+  function renderStages(){
+    var t = thresholds();
+    var p = pHaz();
+    var N = S.days;
+    var kH = kHyp();
+
+    var open1 = openCost(1);
+    var R1 = R(1), R2 = Math.min(2, N);
+    var pv2 = R(2) / (1 + kH);
+    var mid = Math.min(N, 10);
+
+    var ratioLimit = S.mult / (S.mult - 1);
+    var ratioN = C(N) / R(N);
+    var net10 = R(mid) - p * C(mid);
+
+    var finalC = C(N);
+    var uRatio = Math.log(finalC) / Math.log(R1);
+    var multiple = Math.pow(S.mult, N-1);
+
+    var h = '';
+
+    /* ① */
+    h += '<div class="stage">' +
+      '<div class="idx">01</div>' +
+      '<h3>초기 유혹 구간</h3>' +
+      '<div class="en">현재편향 · 쌍곡할인 (Present Bias, Hyperbolic Discounting)</div>' +
+      '<dl>' +
+        '<dt>1일차 보상</dt><dd><b>' + fmtWon(R1) + '</b></dd>' +
+        '<dt>지금 열고 싶은 마음 (설정값)</dt><dd>' + fmtWon(urgeValue()) + '</dd>' +
+        '<dt>1일차에 열 때 잃는 것</dt><dd>' + fmtWon(open1) + '</dd>' +
+        '<dt>손실 아픔 환산 (2.25배)</dt><dd>' + fmtWon(LAMBDA*open1) + '</dd>' +
+        '<dt>저울이 참는 쪽으로 넘어가는 날</dt><dd><b>' + (t.flip ? 'D+' + t.flip : '기간 내 없음') + '</b></dd>' +
+      '</dl>' +
+      '<p>첫날 보상은 ' + fmtWon(R1) + '입니다. 지금 인스타를 열면 이 금액이 사라지지만, 체감으로는 별일 아닙니다. 손실의 아픔을 2.25배로 부풀려 계산해도 ' + fmtWon(LAMBDA*open1) + '이고, 열고 싶은 마음은 ' + fmtWon(urgeValue()) + '어치로 잡혀 있습니다. 이 구간에서 사람은 계산이 아니라 충동으로 움직입니다.</p>' +
+      '<p>쌍곡할인은 가까운 미래의 보상을 훨씬 급하게 깎아냅니다. 내일 받을 ' + fmtWon(R(2)) + '은 오늘 시점에서 ' + fmtWon(pv2) + ' 정도로 느껴집니다. 하루만 지나면 그 사이 가치가 뚝 떨어지는 구조라, 보상이 작을수록 참기 어려워집니다. 이 실험에서 ' + (t.flip ? 'D+' + t.flip + '까지가 그 구간' : '기간 전체가 그 구간') + '입니다.</p>' +
+    '</div>';
+
+    /* ② */
+    h += '<div class="stage">' +
+      '<div class="idx">02</div>' +
+      '<h3>임계점 돌파</h3>' +
+      '<div class="en">기회비용 역전 · 참는 이유가 의지에서 계산으로</div>' +
+      '<dl>' +
+        '<dt>하루 인스타 기회비용</dt><dd>' + fmtWon(costInsta()) + ' <span style="color:#9A9A9A">(시간당 ' + fmtWon(S.hourly) + ' × ' + S.hours + '시간)</span></dd>' +
+        '<dt>하루 보상이 이 비용을 넘는 날</dt><dd><b>' + (t.cost ? 'D+' + t.cost + ' · ' + fmtWon(R(t.cost)) : '기간 내 없음') + '</b></dd>' +
+        '<dt>하루 보상이 한 달 용돈을 넘는 날</dt><dd>' + (t.allow ? 'D+' + t.allow + ' · ' + fmtWon(R(t.allow)) : '기간 내 없음') + ' <span style="color:#9A9A9A">용돈 ' + fmtWon(S.allowance) + '</span></dd>' +
+        '<dt>하루 보상이 1년치 용돈을 넘는 날</dt><dd>' + (t.year ? 'D+' + t.year + ' · ' + fmtWon(R(t.year)) : '기간 내 없음') + '</dd>' +
+        '<dt>D+' + S.days + ' 하루 보상</dt><dd><b>' + fmtWon(R(N)) + '</b></dd>' +
+      '</dl>' +
+      '<p>하루 참는 보상이 하루 인스타 사용의 기회비용(' + fmtWon(costInsta()) + ')을 넘는 순간, 참는 쪽이 처음으로 계산에서 이깁니다. ' + (t.cost ? 'D+' + t.cost + '입니다.' : '이 설정에서는 기간 안에 오지 않습니다. 배수를 올리거나 초기 보상금을 키워야 합니다.') + ' 이 지점을 지나면 유혹이 줄어서가 아니라, 여는 쪽 가격표가 너무 비싸져서 선택지에서 빠집니다.</p>' +
+      '<p>그래서 실험 설계에서 중요한 것은 최대 보상이 아니라 이 날짜입니다. 임계점이 너무 늦으면 대부분 첫 사흘 안에 포기하고, 너무 이르면 참는 재미가 없습니다. 조건을 바꿔 보면서 ' + (t.cost ? 'D+' + t.cost : '이 날짜') + '를 어디에 두는지가 이 실험의 실제 난이도입니다.</p>' +
+    '</div>';
+
+    /* ③ */
+    var isA = S.mode === 'A';
+    var ev = evBest();
+    var evRow = isA
+      ? '<dt>기대값 최대 지점 (A모드)</dt><dd><b>D+' + ev.n + '</b> · ' + fmtWon(ev.ev) + '</dd>'
+      : '<dt>확정 지급의 우세 전략</dt><dd><b>기간 끝까지 참기</b></dd>';
+    h += '<div class="stage">' +
+      '<div class="idx">03</div>' +
+      '<h3>손실회피 역전</h3>' +
+      '<div class="en">쌓인 것을 잃을까 봐 못 여는 구조</div>' +
+      '<dl>' +
+        '<dt>D+' + N + ' 누적 ÷ 하루 보상</dt><dd><b>' + fmtRatio(ratioN) + '배</b>' + (ratioN < ratioLimit * 0.985 ? ' <span style="color:#9A9A9A">(수렴값 ' + fmtRatio(ratioLimit) + '배)</span>' : '') + '</dd>' +
+        '<dt>D+' + N + ' 잔고</dt><dd>' + fmtWon(C(N-1)) + '</dd>' +
+        '<dt>D+' + N + ' 열면 잃는 것</dt><dd>' + (isA ? fmtWon(C(N-1)) + ' 몰수' : fmtWon(R(N)) + ' 포기') + '</dd>' +
+        (isA ? '<dt>참았을 때와의 차이</dt><dd>' + fmtWon(openCost(N)) + '</dd>' : '') +
+        '<dt>D+' + mid + ' 참기의 기대 순이득</dt><dd>' + fmtWon(net10) + ' <span style="color:#9A9A9A">(' + fmtWon(R(mid)) + ' − ' + fmtPct(p) + ' × ' + fmtWon(C(mid)) + ')</span></dd>' +
+        evRow +
+      '</dl>' +
+      '<p>누적금은 하루 보상의 ' + fmtRatio(ratioN) + '배입니다. 배수가 ' + S.mult.toFixed(1) + '이면 이 비율이 ' + fmtRatio(ratioLimit) + '배로 수렴해서 잔고가 하루 보상의 ' + fmtRatio(ratioLimit) + '배를 넘지 않습니다. 배수가 낮을수록 쌓아둔 것이 하루 보상보다 훨씬 커지고, 마지막 하루를 걸고 전부를 잃는 구조가 만들어집니다. 배수가 높으면 하루 보상이 사실상 전부라 손실회피가 붙을 자리가 없습니다.</p>' +
+      '<p>' + (isA
+        ? '전액 몰수 모드에서 D+' + N + '에 열면 잔고 ' + fmtWon(C(N-1)) + '이 그대로 사라집니다. 참았을 때와 비교하면 ' + fmtWon(openCost(N)) + '을 포기하는 셈입니다. 쌓인 금액이 하루 보상의 두 배 안쪽이라, 매일 저녁 잔고 전체를 걸고 하루치를 버는 도박을 반복하는 구조가 됩니다. 잃을 수 있는 금액은 D+' + Math.min(N,10) + '에 ' + fmtWon(C(Math.min(N,10))) + '으로 1일차의 ' + fmtRatio(C(Math.min(N,10))/C(1)) + '배가 됩니다. 같은 버튼인데 걸린 돈이 매일 ' + S.mult.toFixed(1) + '배씩 커지는 셈입니다.'
+        : '확정 지급 모드에서는 열어도 ' + fmtWon(C(N-1)) + '이 남습니다. 잃는 것은 그날 하루치 ' + fmtWon(R(N)) + '뿐이고, 내일 열어도 오늘 열 때보다 손해가 없습니다. 그래서 참기가 항상 우세해지고 실험의 긴장이 사라집니다. 사람을 실제로 붙잡는 것은 몰수 조항입니다.') +
+      '</p>' +
+    '</div>';
+
+    /* ④ */
+    h += '<div class="stage">' +
+      '<div class="idx">04</div>' +
+      '<h3>지수 폭발의 역설</h3>' +
+      '<div class="en">한계효용 체감 · 지급 불가능 지점</div>' +
+      '<dl>' +
+        '<dt>지급 가능 예산 초과</dt><dd><b>' + (t.budget ? 'D+' + t.budget + ' · ' + fmtWon(C(t.budget)) : '기간 내 없음') + '</b></dd>' +
+        '<dt>누적 1억 돌파</dt><dd>' + dayTxt(t.eok, N) + '</dd>' +
+        '<dt>누적 1조 돌파</dt><dd>' + dayTxt(t.jo, N) + '</dd>' +
+        '<dt>전 세계 1년 GDP 규모 돌파</dt><dd>' + dayTxt(t.world, N) + ' <span style="color:#9A9A9A">약 1경 6천조원</span></dd>' +
+        '<dt>D+' + N + ' 누적</dt><dd><b>' + fmtWon(finalC) + '</b></dd>' +
+        '<dt>금액 증가 배수</dt><dd>' + guessMult(multiple) + '</dd>' +
+        '<dt>체감 만족(로그) 증가</dt><dd>' + uRatio.toFixed(1) + '배</dd>' +
+      '</dl>' +
+      '<p>누적금이 지급 가능 예산 ' + fmtWon(S.budget) + '을 넘는 날은 ' + (t.budget ? 'D+' + t.budget : '기간 내 없음') + '입니다. 그 뒤의 숫자는 약속일 뿐 실제로 지급될 수 없습니다. ' + (t.eok ? 'D+' + t.eok + '에 1억, ' : '') + (t.jo ? 'D+' + t.jo + '에 1조를 넘고, ' : '') + (t.world ? (t.world > N ? '계산상 D+' + t.world + '이면' : 'D+' + t.world + '에') + ' 전 세계 1년 GDP 규모가 됩니다.' : '') + '</p>' +
+      '<p>금액은 ' + N + '일 동안 ' + guessMult(multiple) + '가 되지만, 체감 만족을 로그로 잡으면 ' + uRatio.toFixed(1) + '배 커지는 데 그칩니다. 지수 성장은 숫자에서만 일어나고 사람 쪽에서는 거의 선형으로만 늘어납니다. 그래서 후반의 보상은 동기가 아니라 회계 숫자가 되고, 실험은 지급 가능한 구간 안에서만 의미를 가집니다.</p>' +
+    '</div>';
+
+    $('stages').innerHTML = h;
+  }
+
+  /* ---------- 렌더: 가정 ---------- */
+  function renderAssume(){
+    var list = [
+      '누적 보상은 매일 보상의 합(기하급수 합)으로 계산했습니다. 마지막 날 하루 보상보다 누적이 배수에 따라 1.5배에서 6배까지 커집니다.',
+      '하루 실패 확률은 유혹 강도 × 2%입니다. 강도 5면 하루 10%, 30일 완주 확률은 4% 안팎입니다.',
+      '손실회피 계수 2.25는 Kahneman과 Tversky(1992)가 제시한 추정치를 그대로 썼습니다.',
+      '쌍곡할인은 Mazur(1987) 형태인 V = 보상 ÷ (1 + k·D)를 하루 단위로 적용했고, k는 유혹 강도 × 0.1로 두었습니다.',
+      '충동의 체감 가격은 유혹 강도 × 하루 인스타 기회비용으로 임의 설정했습니다. 절대값보다 날짜에 따라 어떻게 뒤집히는지를 보는 용도입니다.',
+      '시간당 가치 기본값 10,320원은 2026년 최저임금입니다. 본인 기준으로 바꿔 넣으면 임계점이 달라집니다.',
+      '기대값 최대 지점은 지급 가능 예산으로 상한을 둔 기대값입니다. 상한이 없으면 배수가 1보다 큰 한 끝까지 가는 쪽이 유리해집니다.',
+      '20일차를 넘고 배수가 크면 자바스크립트 숫자의 정밀도 한계로 표시 금액이 근사값이 됩니다. 자릿수와 경향은 맞지만 원 단위까지 정확하지는 않습니다.'
+    ];
+    $('assumeList').innerHTML = list.map(function(s){ return '<p>' + s + '</p>'; }).join('');
+  }
+
+  /* ---------- 전체 렌더 ---------- */
+  function renderAll(){
+    renderHeader();
+    renderKPI();
+    renderChart();
+    renderPlay();
+    renderTable();
+    renderStages();
+  }
+
+  /* ---------- 입력 ---------- */
+  function syncLabels(){
+    if(document.activeElement !== $('r0Input')) $('r0Input').value = commas(S.r0) + '원';
+    if(document.activeElement !== $('multInput')) $('multInput').value = S.mult.toFixed(1) + '×';
+    var band = S.urge <= 3 ? '낮음' : (S.urge <= 7 ? '보통' : '높음');
+    $('urgeVal').textContent = band + ' ' + S.urge;
+    $('urgeHint').textContent = '하루 실패 확률 ' + fmtPct(pHaz()) + '로 계산합니다.';
+    $('daysVal').textContent = S.days + '일';
+  }
+
+  function bind(){
+    $('r0Range').addEventListener('input', function(){ S.r0 = +this.value; afterChange(); });
+    $('multRange').addEventListener('input', function(){ S.mult = +this.value; afterChange(); });
+
+    $('r0Input').addEventListener('change', function(){
+      var v = parseInt(String(this.value).replace(/[^0-9]/g,''), 10);
+      if(isNaN(v) || v < 100) v = DEFAULTS.r0;
+      if(v > 1000000) v = 1000000;
+      S.r0 = v;
+      if(v <= +$('r0Range').max) $('r0Range').value = v;
+      this.value = commas(v) + '원';
+      afterChange();
+    });
+    $('multInput').addEventListener('change', function(){
+      var v = parseFloat(String(this.value).replace(/[^0-9.]/g,''));
+      if(isNaN(v)) v = DEFAULTS.mult;
+      v = Math.min(3, Math.max(1.2, Math.round(v*10)/10));
+      S.mult = v;
+      $('multRange').value = v;
+      this.value = v.toFixed(1) + '×';
+      afterChange();
+    });
+    $('urgeRange').addEventListener('input', function(){ S.urge = +this.value; afterChange(); });
+    $('daysRange').addEventListener('input', function(){
+      S.days = +this.value;
+      if(play.day > S.days){ play.day = 1; play.status = 'playing'; play.failDay = null; play.history = []; }
+      afterChange();
+    });
+
+    var segLabels = document.querySelectorAll('#modeSeg label');
+    Array.prototype.forEach.call(segLabels, function(lab){
+      lab.addEventListener('click', function(){
+        S.mode = lab.getAttribute('data-mode');
+        Array.prototype.forEach.call(segLabels, function(x){ x.classList.toggle('on', x === lab); });
+        afterChange();
+      });
+    });
+
+    function num(id, key, min){
+      var elx = $(id);
+      elx.addEventListener('change', function(){
+        var v = parseFloat(String(this.value).replace(/[^0-9.]/g,''));
+        if(isNaN(v)) v = DEFAULTS[key];
+        if(min != null && v < min) v = min;
+        S[key] = v;
+        this.value = commas(v);
+        afterChange();
+      });
+    }
+    num('allowanceInput','allowance',0);
+    num('budgetInput','budget',0);
+    $('hoursInput').addEventListener('change', function(){
+      var v = parseFloat(this.value); if(isNaN(v) || v < 0) v = DEFAULTS.hours;
+      S.hours = v; this.value = v; afterChange();
+    });
+    $('hourlyInput').addEventListener('change', function(){
+      var v = parseFloat(this.value); if(isNaN(v) || v < 0) v = DEFAULTS.hourly;
+      S.hourly = v; this.value = v; afterChange();
+    });
+
+    $('logToggle').addEventListener('click', function(){
+      S.chartLog = !S.chartLog;
+      this.textContent = S.chartLog ? '선형 눈금으로 보기' : '로그 눈금으로 보기';
+      renderChart();
+    });
+
+    var rt;
+    window.addEventListener('resize', function(){
+      clearTimeout(rt);
+      rt = setTimeout(function(){ renderChart(); }, 180);
+    });
+
+    $('btnHold').addEventListener('click', function(){
+      if(play.status !== 'playing') return;
+      play.history.push({ day:play.day, choice:'hold' });
+      play.day += 1;
+      if(play.day > S.days){ play.status = 'done'; }
+      renderPlay();
+    });
+    $('btnOpen').addEventListener('click', function(){
+      if(play.status !== 'playing') return;
+      play.failDay = play.day;
+      play.status = 'failed';
+      play.history.push({ day:play.day, choice:'open' });
+      renderPlay();
+    });
+    $('btnUndo').addEventListener('click', function(){
+      var last = play.history.pop();
+      if(!last) return;
+      if(last.choice === 'open'){
+        play.status = 'playing'; play.failDay = null; play.day = last.day;
+      } else {
+        play.status = 'playing'; play.failDay = null; play.day = Math.max(1, last.day);
+      }
+      renderPlay();
+    });
+    $('btnRestart').addEventListener('click', function(){ reset(true); });
+    $('btnAllHold').addEventListener('click', function(){
+      if(play.status === 'failed'){ reset(true); }
+      play.history.push({ day:play.day, choice:'jump' });
+      play.status = 'done';
+      play.day = S.days + 1;
+      renderPlay();
+    });
+    $('resetAll').addEventListener('click', function(){
+      Object.assign(S, DEFAULTS);
+      $('r0Range').value = DEFAULTS.r0;
+      $('multRange').value = DEFAULTS.mult;
+      $('r0Input').value = commas(DEFAULTS.r0) + '원';
+      $('multInput').value = DEFAULTS.mult.toFixed(1) + '×';
+      $('urgeRange').value = DEFAULTS.urge;
+      $('daysRange').value = DEFAULTS.days;
+      $('allowanceInput').value = commas(DEFAULTS.allowance);
+      $('budgetInput').value = commas(DEFAULTS.budget);
+      $('hoursInput').value = DEFAULTS.hours;
+      $('hourlyInput').value = DEFAULTS.hourly;
+      S.mode = DEFAULTS.mode;
+      Array.prototype.forEach.call(segLabels, function(x){
+        x.classList.toggle('on', x.getAttribute('data-mode') === 'A');
+      });
+      play = { day:1, status:'playing', failDay:null, history:[] };
+      syncLabels();
+      renderAll();
+    });
+  }
+
+  function afterChange(){
+    syncLabels();
+    renderAll();
+  }
+
+  /* ---------- 시작 ---------- */
+  syncLabels();
+  bind();
+  renderAll();
+  renderAssume();
+})();
+</script>
+</body>
+</html>
