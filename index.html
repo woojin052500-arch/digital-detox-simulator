@@ -1302,6 +1302,7 @@
       if(p.key === 'iron') out = '아직은 버틸 만하다. 흔들릴 이유가 없다.';
     } else if(r < 1){
       out = '저울이 거의 비겼다. 오늘 열면 ' + mw(row.cost) + ' 손해, 하루만 더 참으면 ' + mw(R(Math.min(k+1, S.days))) + '이다.';
+      if(p.key === 'realist' && row.trust < 1) out = '예산을 넘은 금액은 손해로 안 잡힌다. 그래도 여는 쪽이 슬슬 무거워진다.';
     } else if(row.trust < 0.85){
       out = '예산은 넘었는데 이 돈을 진짜 줄까. ' + mw(row.pot) + '이 숫자로만 보인다.';
     } else if(S.budget > 0 && row.pot > S.budget){
@@ -1345,7 +1346,8 @@
         foot = '탈락 사유 · ' + causeOf(per);
       } else {
         var fd = flipDay(per);
-        if(fd && fd <= LAB.day) foot = '저울 역전 완료 (D+' + fd + ') · 참는 쪽 우세';
+        if(row.ratio >= 1) foot = '저울 역전 완료 (D+' + fd + ') · 참는 쪽 우세';
+        else if(fd && fd < LAB.day) foot = '역전이 풀렸다 · 여는 쪽이 다시 무거움';
         else if(fd) foot = '저울 역전까지 ' + (fd - LAB.day) + '일';
         else foot = '이 기간에는 저울 역전 없음';
       }
