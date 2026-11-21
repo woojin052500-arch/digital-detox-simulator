@@ -1291,10 +1291,15 @@
     if(row.shock){
       out = '친구가 태그했다. 알림이 계속 울린다. ' + mw(row.pot) + '이 걸려 있어도 손이 간다.';
     } else if(r < 0.12){
-      out = '오늘 열어도 ' + mw(row.cost) + '만 잃네. 잠깐만 볼까.';
+      if(p.key === 'iron') out = '손해는 ' + mw(row.cost) + '뿐이다. 하루는 그냥 넘긴다.';
+      else if(p.key === 'calc') out = mw(row.cost) + ' 손해. 작지만 여는 순간 실험은 끝난다.';
+      else if(p.key === 'realist') out = '오늘 열어도 ' + mw(row.cost) + '만 잃네. 참는 쪽이 낫나?';
+      else if(p.key === 'heavy') out = '오늘 열어도 ' + mw(row.cost) + '만 잃네. 30분만 볼까.';
+      else out = '오늘 열어도 ' + mw(row.cost) + '만 잃네. 잠깐만 볼까.';
     } else if(r < 0.45){
       out = isA ? '여는 쪽이 아직 무겁다. ' + mw(row.pot) + ' 걸고 하루 더 버티는 게 불안하다.'
                 : '여는 쪽이 아직 무겁다. 하루만 더 참으면 ' + mw(R(Math.min(k+1, S.days))) + '다.';
+      if(p.key === 'iron') out = '아직은 버틸 만하다. 흔들릴 이유가 없다.';
     } else if(r < 1){
       out = '저울이 거의 비겼다. 오늘 열면 ' + mw(row.cost) + ' 손해, 하루만 더 참으면 ' + mw(R(Math.min(k+1, S.days))) + '이다.';
     } else if(row.trust < 0.85){
@@ -1308,7 +1313,7 @@
     }
     if(p.key === 'impulse' && r >= 1) out += ' 친구 태그 하나만 와도 흔들린다.';
     else if(p.key === 'heavy' && r < 0.6) out += ' 하루 4시간이 비니까 하루가 안 간다.';
-    else if(p.key === 'iron') out += ' 이번 주는 버틴다.';
+    else if(p.key === 'iron' && r >= 1) out += ' 이번 주는 버틴다.';
     else if(p.key === 'calc' && r >= 1) out += ' 하루 참는 값이 ' + mw(R(k)) + '이니 계산은 끝났다.';
     else if(p.key === 'realist' && row.trust < 1) out += ' 예산 ' + mw(S.budget) + '까지는 믿는다.';
     return out;
