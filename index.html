@@ -258,6 +258,54 @@
   .assume p:last-child{margin-bottom:0}
 
   footer{margin-top:28px;font-size:10.5px;color:var(--faint);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+
+  /* 다중 인물 실험실 */
+  .lab-bar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:13px 18px;border-bottom:1px solid var(--line);background:var(--panel)}
+  .lab-day{display:flex;align-items:baseline;gap:9px;font-size:11.5px;color:var(--muted)}
+  .lab-day b{font-size:23px;font-weight:600;letter-spacing:-.03em;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1}
+  .lab-day .of{font-size:12px;color:var(--faint)}
+  .lab-btns{display:flex;gap:8px;flex-wrap:wrap}
+  .lab-btns .btn{width:auto;padding:8px 13px;font-size:11.5px}
+  .lab-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line)}
+  .pcard{background:#fff;padding:14px 15px 13px;display:flex;flex-direction:column;gap:9px;min-width:0}
+  .pcard.dead{background:#FCFCFC}
+  .p-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+  .p-name{font-size:13.5px;font-weight:600;letter-spacing:-.02em;line-height:1.3}
+  .p-tag{font-size:10.5px;color:var(--faint);margin-top:2px;line-height:1.4}
+  .badge{flex:none;font-size:10px;border:1px solid var(--line);padding:2px 6px;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+  .badge.live{border-color:var(--ink);color:var(--ink)}
+  .badge.dead{border-color:#E2C7C4;color:var(--danger)}
+  .scale-bar{display:flex;height:7px;background:#F2F2F2;overflow:hidden}
+  .scale-bar i{display:block;height:100%;background:#CFCFCF;transition:width .28s ease}
+  .scale-bar b{display:block;height:100%;background:var(--ink);transition:width .28s ease}
+  .pcard.dead .scale-bar i{background:#E2E2E2}
+  .pcard.dead .scale-bar b{background:#9A9A9A}
+  .scale-lab{display:flex;justify-content:space-between;gap:8px;font-size:10px;color:var(--muted);margin-top:5px;font-variant-numeric:tabular-nums}
+  .scale-lab b{color:var(--ink);font-weight:500}
+  .bubble{position:relative;margin-top:6px;border:1px solid var(--line);background:var(--panel);padding:10px 11px;font-size:12px;line-height:1.68;color:#2C2C2C;min-height:66px}
+  .bubble:before{content:"";position:absolute;left:13px;top:-5px;width:7px;height:7px;background:var(--panel);border-left:1px solid var(--line);border-top:1px solid var(--line);transform:rotate(45deg)}
+  .pcard.dead .bubble{background:#fff;color:var(--muted)}
+  .pcard.dead .bubble:before{background:#fff}
+  .p-foot{font-size:10.5px;color:var(--faint);line-height:1.5;margin-top:auto}
+  .p-head{min-width:0}
+  .lab-sum{background:var(--panel);padding:14px 15px;display:flex;flex-direction:column;gap:7px;font-size:11.5px;color:var(--muted)}
+  .lab-sum .s-t{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-bottom:2px}
+  .lab-sum .row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;border-bottom:1px solid var(--line);padding-bottom:6px}
+  .lab-sum .row:last-of-type{border-bottom:0;padding-bottom:0}
+  .lab-sum .row b{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
+  .lab-sum .s-n{font-size:10px;color:var(--faint);line-height:1.55;margin-top:4px}
+  .lab-chart{padding:14px 16px 12px;border-top:1px solid var(--line)}
+  .lab-chart svg{display:block;width:100%;height:auto}
+  .chart-cap{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+  .chart-cap span:first-child{font-size:11.5px;font-weight:600;color:var(--ink)}
+  .chart-cap .note{font-size:10.5px;color:var(--faint);font-weight:400;text-align:right}
+  @media (max-width:1000px){ .lab-grid{grid-template-columns:repeat(2,minmax(0,1fr))} }
+  @media (max-width:640px){
+    .lab-grid{grid-template-columns:1fr}
+    .lab-bar{padding:12px 15px}
+    .lab-btns .btn{padding:7px 11px;font-size:11px}
+    .bubble{min-height:0}
+  }
 </style>
 </head>
 <body>
@@ -281,7 +329,7 @@
       </div>
       <div class="guide-item">
         <div class="g-num">02</div>
-        <p><b>오늘의 선택</b>에서 '오늘은 참는다' 또는 '인스타를 연다' 버튼을 직접 눌러보며 날짜별 심리 변화를 체험해 보세요.</p>
+        <p><b>다중 인물 사고 실험실</b>에서 성향이 다른 5명이 같은 규칙으로 버티는 과정을 자동 재생으로 먼저 보고, <b>오늘의 선택</b>에서는 직접 버튼을 눌러보세요.</p>
       </div>
       <div class="guide-item">
         <div class="g-num">03</div>
@@ -361,6 +409,31 @@
       <section class="card">
         <div class="sec-head"><h2>요약</h2><span class="note" id="kpiNote"></span></div>
         <div class="kpis" id="kpis"></div>
+      </section>
+
+      <section class="card" id="labCard">
+        <div class="sec-head"><h2>다중 인물 사고 실험실</h2><span class="note">같은 규칙 · 성향이 다른 5명 · 100명 코호트</span></div>
+
+        <div class="lab-bar">
+          <div class="lab-day"><span class="eyebrow">공통 진행</span><b id="labDay">1</b><span class="of" id="labOf">/ 30일</span></div>
+          <div class="lab-btns">
+            <button class="btn primary" id="labPlay" type="button">자동 재생</button>
+            <button class="btn ghost" id="labStep" type="button">+1일 진행</button>
+            <button class="btn ghost" id="labReset" type="button">다시 시작</button>
+          </div>
+        </div>
+
+        <div class="lab-grid" id="labGrid"></div>
+
+        <div class="lab-chart">
+          <div class="chart-cap"><span>5인 타임라인</span><span class="note">지금까지 진행된 날까지만 채워집니다</span></div>
+          <svg id="labTime" viewBox="0 0 760 200" role="img" aria-label="다섯 명의 생존과 탈락 일차를 비교한 타임라인"></svg>
+        </div>
+
+        <div class="lab-chart">
+          <div class="chart-cap"><span>100명 코호트 생존율</span><span class="note" id="labSurvNote"></span></div>
+          <svg id="labSurv" viewBox="0 0 760 250" role="img" aria-label="현재 설정으로 돌린 100명의 일자별 생존율 곡선"></svg>
+        </div>
       </section>
 
       <section class="card">
@@ -617,8 +690,7 @@
   /* ---------- 렌더: KPI ---------- */
   function renderKPI(){
     var t = thresholds();
-    var p = pHaz();
-    var surv = Math.pow(1-p, S.days);
+    var comp = LAB.cohort ? LAB.cohort.comp : 0;
     var finalC = C(S.days);
     var budgetRatio = S.budget > 0 ? finalC / S.budget : null;
 
@@ -633,8 +705,8 @@
         s: t.allow ? fmtWon(R(t.allow)) + ' > ' + fmtWon(S.allowance) : '기간 내 도달 안 함' },
       { k:'지급 한도 도달', v: t.budget ? 'D+' + t.budget : '기간 내 없음',
         s: t.budget ? '예산 ' + fmtWon(S.budget) + ' 초과' : '예산 안에서 끝납니다' },
-      { k:'완주 확률', v: fmtPct(surv),
-        s:'하루 실패 ' + fmtPct(p) + ' 기준' }
+      { k:'완주 예상', v: fmtPct(comp),
+        s:'100명 코호트 · 개인차 반영' }
     ];
     $('kpis').innerHTML = items.map(function(it){
       var cls = String(it.v).length > 13 ? 'v long' : 'v';
@@ -1058,7 +1130,10 @@
   function renderAssume(){
     var list = [
       '누적 보상은 매일 보상의 합(기하급수 합)으로 계산했습니다. 마지막 날 하루 보상보다 누적이 배수에 따라 1.5배에서 6배까지 커집니다.',
-      '하루 실패 확률은 유혹 강도 × 2%입니다. 강도 5면 하루 10%, 30일 완주 확률은 4% 안팎입니다.',
+      '하루 실패 확률은 유혹 강도 × 2%(강도 5면 10%)를 기준선으로 두고, 그날의 참는 힘과 여는 유혹 비율, 사람마다 다른 인내 계수로 다시 계산했습니다. 날이 갈수록 참는 쪽 무게가 커져 실패율이 떨어지므로, 요약의 완주 예상은 이 모델로 100명을 돌린 값입니다.',
+      '다중 인물 5명은 성향별 계수(손실회피 계수, 충동성, 인내 계수)를 고정하고 날마다 유혹의 세기를 로그정규로 흔들어 돌렸습니다. 같은 조건이라도 다시 시작하면 다른 하루가 나옵니다.',
+      '100명 코호트는 5가지 성향을 각 20명씩 두고 계수를 ±15~20% 흔들어 돌린 몬테카를로 값입니다. 표본이 100명이라 결과는 몇 %p씩 흔들립니다.',
+      '현실주의자는 누적금이 지급 가능 예산을 넘으면 그 금액을 받을 돈으로 계산하지 않습니다. 넘은 뒤에는 믿는 금액이 (예산 ÷ 누적)^1.5로 줄어들어 동기 부여가 꺾입니다.',
       '손실회피 계수 2.25는 Kahneman과 Tversky(1992)가 제시한 추정치를 그대로 썼습니다.',
       '쌍곡할인은 Mazur(1987) 형태인 V = 보상 ÷ (1 + k·D)를 하루 단위로 적용했고, k는 유혹 강도 × 0.1로 두었습니다.',
       '충동의 체감 가격은 유혹 강도 × 하루 인스타 기회비용으로 임의 설정했습니다. 절대값보다 날짜에 따라 어떻게 뒤집히는지를 보는 용도입니다.',
@@ -1069,14 +1144,368 @@
     $('assumeList').innerHTML = list.map(function(s){ return '<p>' + s + '</p>'; }).join('');
   }
 
+  /* ================= 다중 인물 사고 실험실 ================= */
+
+  var LAB = { seed: 6290, day: 1, playing: false, timer: null, persons: [], cohort: null };
+
+  var PERSONAS = [
+    { key:'impulse', name:'충동형', tag:'즉각 보상 우선', lam:1.30, imp:1.95, selfc:1.00, hours:null, shock:0, floor:0.010 },
+    { key:'calc',    name:'계산형', tag:'손실회피 민감', lam:3.60, imp:0.75, selfc:0.45, hours:null, shock:0, floor:0.003 },
+    { key:'heavy',   name:'헤비유저', tag:'하루 4시간 SNS', lam:1.70, imp:1.15, selfc:0.70, hours:4,  shock:0, floor:0.005 },
+    { key:'realist', name:'현실주의자', tag:'신뢰도 감쇠', lam:2.40, imp:1.00, selfc:0.40, hours:null, shock:0, trust:1, floor:0.003 },
+    { key:'iron',    name:'극한 인내형', tag:'고집형', lam:3.20, imp:0.50, selfc:0.25, hours:null, shock:0.08, floor:0.002 }
+  ];
+
+  function seeded(a){
+    return function(){
+      a |= 0; a = a + 0x6D2B79F5 | 0;
+      var t = Math.imul(a ^ a >>> 15, 1 | a);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+  function gauss(rng){
+    var u = rng(); if(u < 1e-9) u = 1e-9;
+    return Math.sqrt(-2*Math.log(u)) * Math.cos(2*Math.PI*rng());
+  }
+  function mw(v){ return fmtShort(v) + '원'; }
+
+  /* 한 사람의 하루하루: 참는 힘과 여는 유혹을 같은 날짜 기준으로 비교한다 */
+  function simPerson(p, rng){
+    var N = S.days, rows = [], fail = null;
+    var ph = Math.min(0.6, S.urge*0.02);
+    var hoursP = p.hours == null ? S.hours : p.hours;
+    var costInsta = S.hourly * hoursP;
+    var d, shock, openW, oc, cd, trust, dec, baseCost, holdW, ratio, g, pf, r;
+    for(d = 1; d <= N; d++){
+      shock = p.shock > 0 && rng() < p.shock;
+      r = Math.exp(gauss(rng)*0.5);
+      openW = Math.max(1, S.urge * costInsta * p.imp * r * (shock ? 4.5 : 1));
+      oc = openCost(d);
+      cd = C(d);
+      trust = 1;
+      if(S.budget > 0 && cd > S.budget){
+        dec = Math.max(0.01, Math.pow(S.budget/cd, 1.5));
+        trust = 1 - (1 - dec) * (p.trust || 0);
+      } else if(S.budget <= 0){
+        trust = 1 - (p.trust || 0) * 0.99;
+      }
+      baseCost = (p.trust && oc > S.budget) ? Math.min(oc, S.budget) : oc;
+      holdW = p.lam * baseCost * trust;
+      ratio = holdW / openW;
+      g = 1.7 / (1 + Math.pow(ratio/1.4, 1.05));
+      pf = Math.max(p.floor, Math.min(0.72, ph * 0.85 * p.selfc * Math.sqrt(p.imp) * g));
+      rows.push({ d:d, openW:openW, holdW:holdW, ratio:ratio, pf:pf, shock:shock, cost:oc, pot:cd, trust:trust });
+      if(fail === null && rng() < pf){ fail = d; }
+    }
+    return { p:p, rows:rows, fail:fail };
+  }
+
+  /* 5가지 성향 20명씩, 계수를 흔들어 100명을 돌린다 */
+  function simCohort(){
+    var rng = seeded(90001), people = [];
+    PERSONAS.forEach(function(base){
+      for(var k = 0; k < 20; k++){
+        people.push({
+          key: base.key, name: base.name,
+          lam: base.lam * (0.85 + rng()*0.30),
+          imp: Math.max(0.35, base.imp * (0.80 + rng()*0.40)),
+          selfc: Math.min(1.15, base.selfc * (0.80 + rng()*0.40)),
+          hours: base.hours,
+          shock: Math.min(0.3, (base.shock || 0) + (base.shock ? 0 : 0.03)),
+          trust: base.trust || 0,
+          floor: base.floor
+        });
+      }
+    });
+    var res = people.map(function(pp){ return simPerson(pp, rng); });
+    var N = S.days, surv = [], d, i, alive;
+    for(d = 1; d <= N; d++){
+      alive = 0;
+      for(i = 0; i < res.length; i++){ if(res[i].fail === null || res[i].fail >= d) alive++; }
+      surv.push(alive / res.length);
+    }
+    var comp = 0;
+    for(i = 0; i < res.length; i++){ if(res[i].fail === null) comp++; }
+    comp = comp / res.length;
+    var deaths = [];
+    res.forEach(function(x){ if(x.fail !== null) deaths.push(x.fail); });
+    deaths.sort(function(a,b){ return a - b; });
+    var median = deaths.length ? deaths[Math.floor(deaths.length/2)] : null;
+    var crit = null;
+    var tot = 1 - surv[N-1], cum = 0, share;
+    if(tot > 0.02){
+      for(i = 2; i <= N; i++){
+        cum += surv[i-2] - surv[i-1];
+        share = cum / tot;
+        if(share >= 0.6 && surv[i-1] >= 0.20){
+          crit = { d:i, alive:Math.round(surv[i-1]*100), cond:Math.round(comp/surv[i-1]*100), share:Math.round(share*100) };
+          break;
+        }
+      }
+    }
+    return { surv:surv, comp:comp, median:median, crit:crit, n:res.length };
+  }
+
+  function labRebuild(seed){
+    if(seed != null) LAB.seed = seed;
+    var rng = seeded(LAB.seed);
+    LAB.persons = PERSONAS.map(function(p){ return simPerson(p, rng); });
+    LAB.cohort = simCohort();
+    LAB.day = 1;
+  }
+
+  function labDead(){
+    for(var i = 0; i < LAB.persons.length; i++){
+      var p = LAB.persons[i];
+      if(p.fail === null || p.fail > LAB.day) return false;
+    }
+    return true;
+  }
+  function flipDay(per){
+    for(var i = 0; i < per.rows.length; i++){ if(per.rows[i].ratio >= 1) return per.rows[i].d; }
+    return null;
+  }
+  function causeOf(per){
+    var row = per.rows[per.fail - 1];
+    if(!row) return '실험 종료';
+    if(row.shock) return '친구 태그·핫이슈';
+    if(row.trust < 0.9) return '예산 초과 뒤 지급 불신';
+    if(row.ratio < 0.35) return '즉각 보상 유혹';
+    if(row.ratio < 1) return '저울이 비기던 날';
+    return '방심한 하루';
+  }
+
+  function monologue(per, row, dead, k){
+    var p = per.p, isA = S.mode === 'A';
+    if(dead){
+      if(p.key === 'impulse') return '결국 열었다. 릴스 하나만 보려다 40분이 갔다. ' + (isA ? mw(row.cost) + '이 그냥 사라졌다.' : '오늘치 ' + mw(row.cost) + '만 포기하고 끝냈다.');
+      if(p.key === 'calc') return '결국 열었다. 하루만 더 참았으면 ' + mw(row.pot) + '이었는데, 계산이 흔들린 하루였다.';
+      if(p.key === 'heavy') return '손이 먼저 움직였다. 4시간씩 보던 습관은 하루아침에 안 끊긴다. ' + (isA ? mw(row.cost) + '이 사라졌다.' : '하루치 ' + mw(row.cost) + '를 포기했다.');
+      if(p.key === 'realist') return row.trust < 0.9
+        ? '예산도 넘었는데 이 돈을 진짜 줄까. 믿을 수가 없어서 그냥 열었다.'
+        : '결국 열었다. ' + (isA ? mw(row.cost) + '을 포기했다.' : '확정 지급으로 끝냈다.') + ' 그 돈이 진짜 내 돈 같지 않았다.';
+      return '알림이 한꺼번에 왔다. 이번엔 버티지 못했다. ' + (isA ? mw(row.cost) + '이 사라졌다.' : '하루치 ' + mw(row.cost) + '를 포기했다.');
+    }
+    var r = row.ratio, out;
+    if(row.shock){
+      out = '친구가 태그했다. 알림이 계속 울린다. ' + mw(row.pot) + '이 걸려 있어도 손이 간다.';
+    } else if(r < 0.12){
+      out = '오늘 열어도 ' + mw(row.cost) + '만 잃네. 잠깐만 볼까.';
+    } else if(r < 0.45){
+      out = isA ? '여는 쪽이 아직 무겁다. ' + mw(row.pot) + ' 걸고 하루 더 버티는 게 불안하다.'
+                : '여는 쪽이 아직 무겁다. 하루만 더 참으면 ' + mw(R(Math.min(k+1, S.days))) + '다.';
+    } else if(r < 1){
+      out = '저울이 거의 비겼다. 오늘 열면 ' + mw(row.cost) + ' 손해, 하루만 더 참으면 ' + mw(R(Math.min(k+1, S.days))) + '이다.';
+    } else if(row.trust < 0.85){
+      out = '예산은 넘었는데 이 돈을 진짜 줄까. ' + mw(row.pot) + '이 숫자로만 보인다.';
+    } else if(S.budget > 0 && row.pot > S.budget){
+      out = isA ? '누적 ' + mw(row.pot) + '. 예산은 넘었지만 여기서 열면 지금까지가 다 사라진다.'
+                : '누적 ' + mw(row.pot) + '. 여기서 끝내기엔 아깝다. 하루만 더 얹으면 ' + mw(R(Math.min(k+1, S.days))) + '이다.';
+    } else {
+      out = isA ? '누적 ' + mw(row.pot) + '이 날아가는데 여기서 열 수는 없지.'
+                : '누적 ' + mw(row.pot) + '. 계산기만 봐도 하루 더 참는 게 이긴다.';
+    }
+    if(p.key === 'impulse' && r >= 1) out += ' 친구 태그 하나만 와도 흔들린다.';
+    else if(p.key === 'heavy' && r < 0.6) out += ' 하루 4시간이 비니까 하루가 안 간다.';
+    else if(p.key === 'iron') out += ' 이번 주는 버틴다.';
+    else if(p.key === 'calc' && r >= 1) out += ' 하루 참는 값이 ' + mw(R(k)) + '이니 계산은 끝났다.';
+    else if(p.key === 'realist' && row.trust < 1) out += ' 예산 ' + mw(S.budget) + '까지는 믿는다.';
+    return out;
+  }
+
+  function renderLab(){
+    if(!LAB.persons.length || !LAB.cohort) labRebuild();
+    var N = S.days, e;
+    if(LAB.day > N) LAB.day = N;
+    if(LAB.day < 1) LAB.day = 1;
+
+    e = $('labDay'); if(e) e.textContent = LAB.day;
+    e = $('labOf'); if(e) e.textContent = '/ ' + N + '일';
+    var allDead = labDead(), ended = LAB.day >= N;
+    e = $('labPlay');
+    if(e){ e.textContent = LAB.playing ? '일시정지' : (ended ? '다시 재생' : '자동 재생'); e.disabled = false; }
+    e = $('labStep'); if(e) e.disabled = ended || allDead;
+
+    var aliveCount = 0, html = '';
+    LAB.persons.forEach(function(per){
+      var dead = per.fail !== null && per.fail <= LAB.day;
+      var idx = dead ? per.fail - 1 : Math.min(LAB.day, N) - 1;
+      var row = per.rows[idx];
+      if(!dead) aliveCount++;
+      var share = row.holdW / (row.holdW + row.openW);
+      var hp = Math.max(1.5, Math.min(98.5, share*100));
+      var foot;
+      if(dead){
+        foot = '탈락 사유 · ' + causeOf(per);
+      } else {
+        var fd = flipDay(per);
+        if(fd && fd <= LAB.day) foot = '저울 역전 완료 (D+' + fd + ') · 참는 쪽 우세';
+        else if(fd) foot = '저울 역전까지 ' + (fd - LAB.day) + '일';
+        else foot = '이 기간에는 저울 역전 없음';
+      }
+      html += '<article class="pcard' + (dead ? ' dead' : '') + '">' +
+        '<div class="p-top"><div class="p-head"><div class="p-name">' + per.p.name + '</div>' +
+          '<div class="p-tag">' + per.p.tag + '</div></div>' +
+          (dead ? '<span class="badge dead">D+' + per.fail + ' 탈락</span>'
+                : '<span class="badge live">' + (LAB.day >= N ? '완주' : '생존') + ' D+' + LAB.day + '</span>') +
+        '</div>' +
+        '<div><div class="scale-bar"><i style="width:' + hp.toFixed(1) + '%"></i><b style="width:' + (100-hp).toFixed(1) + '%"></b></div>' +
+          '<div class="scale-lab"><span>참는 힘 <b>' + mw(row.holdW) + '</b></span>' +
+          '<span><b>' + mw(row.openW) + '</b> 여는 유혹</span></div></div>' +
+        '<div class="bubble">' + monologue(per, row, dead, dead ? per.fail : LAB.day) + '</div>' +
+        '<div class="p-foot">' + foot + '</div>' +
+      '</article>';
+    });
+
+    var c = LAB.cohort;
+    var survNow = c.surv[Math.min(LAB.day, N) - 1] || 0;
+    html += '<div class="lab-sum">' +
+      '<div class="s-t">이 날의 집단</div>' +
+      '<div class="row"><span>5인 생존</span><b>' + aliveCount + ' / 5</b></div>' +
+      '<div class="row"><span>코호트 생존율</span><b>' + Math.round(survNow*100) + '%</b></div>' +
+      '<div class="row"><span>완주 예상</span><b>' + Math.round(c.comp*100) + '%</b></div>' +
+      '<div class="row"><span>중간 탈락일</span><b>' + (c.median ? 'D+' + c.median : '없음') + '</b></div>' +
+      '<div class="s-n">' + (allDead ? '5명 모두 탈락했습니다. 다시 시작하면 새로 뽑습니다.'
+        : (ended ? '기간이 끝났습니다. 다시 시작하면 새 5명으로 돌립니다.'
+        : '탈락자는 그날 이후 상태로 고정됩니다.')) + '</div>' +
+    '</div>';
+
+    e = $('labGrid'); if(e) e.innerHTML = html;
+
+    var note = '100명 표본 · 성향 5종 각 20명';
+    if(c.crit) note = '임계점 D+' + c.crit.d + ' · 탈락의 ' + c.crit.share + '%가 이날까지, 남은 ' + c.crit.alive + '명 중 ' + c.crit.cond + '% 완주';
+    else if(c.comp > 0.95) note = '이 설정에서는 100명 중 대부분이 끝까지 버팠습니다';
+    e = $('labSurvNote'); if(e) e.textContent = note;
+
+    renderLabTime();
+    renderLabSurv();
+  }
+
+  function renderLabTime(){
+    var svg = $('labTime'); if(!svg) return;
+    var N = S.days, n = LAB.persons.length;
+    var cw = (svg.parentElement && svg.parentElement.clientWidth) || 760;
+    var compact = cw < 520;
+    var W = compact ? 360 : 760;
+    var left = compact ? 62 : 96, right = compact ? 50 : 84, top = compact ? 14 : 18;
+    var rowH = compact ? 22 : 27;
+    var H = top + rowH*n + (compact ? 18 : 22);
+    var span = W - left - right;
+    var FS = compact ? 9 : 10;
+    var stepX = N <= 10 ? 1 : (N <= 16 ? 2 : (N <= 24 ? 3 : 5));
+    var h = '', d;
+    for(d = 1; d <= N; d++){
+      if(d !== 1 && d !== N && d % stepX !== 0) continue;
+      var x = left + (d-1)/N*span;
+      h += '<line x1="' + x.toFixed(1) + '" x2="' + x.toFixed(1) + '" y1="' + top + '" y2="' + (top+rowH*n).toFixed(1) + '" stroke="#F2F2F2" stroke-width="1"/>';
+      h += '<text x="' + x.toFixed(1) + '" y="' + (H-5) + '" font-size="' + FS + '" fill="#9A9A9A" text-anchor="middle">D+' + d + '</text>';
+    }
+    LAB.persons.forEach(function(per, i){
+      var y = top + i*rowH + rowH/2;
+      var dead = per.fail !== null && per.fail <= LAB.day;
+      var upto = dead ? per.fail - 1 : Math.min(LAB.day, N);
+      h += '<text x="' + (left-8) + '" y="' + (y+3.5).toFixed(1) + '" font-size="' + FS + '" fill="#555555" text-anchor="end">' + per.p.name + '</text>';
+      h += '<rect x="' + left + '" y="' + (y-4).toFixed(1) + '" width="' + span.toFixed(1) + '" height="8" fill="#F4F4F4"/>';
+      if(upto > 0){
+        h += '<rect x="' + left + '" y="' + (y-4).toFixed(1) + '" width="' + (upto/N*span).toFixed(1) + '" height="8" fill="#111111"/>';
+      }
+      if(dead){
+        var xf = left + (per.fail-1)/N*span;
+        h += '<rect x="' + xf.toFixed(1) + '" y="' + (y-6).toFixed(1) + '" width="2" height="12" fill="#B3261E"/>';
+        h += '<text x="' + (left+span+7) + '" y="' + (y+3.5).toFixed(1) + '" font-size="' + FS + '" fill="#B3261E">D+' + per.fail + ' 탈락</text>';
+      } else if(LAB.day >= N){
+        h += '<text x="' + (left+span+7) + '" y="' + (y+3.5).toFixed(1) + '" font-size="' + FS + '" fill="#111111">완주</text>';
+      } else {
+        h += '<text x="' + (left+span+7) + '" y="' + (y+3.5).toFixed(1) + '" font-size="' + FS + '" fill="#9A9A9A">생존</text>';
+      }
+    });
+    var xn = left + LAB.day/N*span;
+    h += '<line x1="' + xn.toFixed(1) + '" x2="' + xn.toFixed(1) + '" y1="' + (top-4) + '" y2="' + (top+rowH*n).toFixed(1) + '" stroke="#C9C9C9" stroke-width="1" stroke-dasharray="2 3"/>';
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    svg.innerHTML = h;
+  }
+
+  function renderLabSurv(){
+    var svg = $('labSurv'); if(!svg) return;
+    var c = LAB.cohort; if(!c) return;
+    var N = S.days;
+    var cw = (svg.parentElement && svg.parentElement.clientWidth) || 760;
+    var compact = cw < 520;
+    var W = compact ? 360 : 760;
+    var H = compact ? 190 : 250;
+    var pad = compact ? { l:30, r:12, t:20, b:24 } : { l:44, r:16, t:24, b:28 };
+    var FS = compact ? 9 : 10;
+    var iw = W - pad.l - pad.r, ih = H - pad.t - pad.b;
+    function xOf(d){ return N === 1 ? pad.l + iw/2 : pad.l + (d-1)/(N-1)*iw; }
+    function yOf(v){ return pad.t + ih - v*ih; }
+    var h = '', i;
+
+    [0, 0.25, 0.5, 0.75, 1].forEach(function(t){
+      var y = yOf(t);
+      h += '<line x1="' + pad.l + '" x2="' + (pad.l+iw) + '" y1="' + y.toFixed(1) + '" y2="' + y.toFixed(1) + '" stroke="#F0F0F0"/>';
+      h += '<text x="' + (pad.l-6) + '" y="' + (y+3.5).toFixed(1) + '" font-size="' + FS + '" fill="#9A9A9A" text-anchor="end">' + Math.round(t*100) + '</text>';
+    });
+    var stepX = N <= 10 ? 1 : (N <= 16 ? 2 : (N <= 24 ? 3 : 5));
+    for(i = 1; i <= N; i++){
+      if(i !== 1 && i !== N && i % stepX !== 0) continue;
+      h += '<text x="' + xOf(i).toFixed(1) + '" y="' + (H-6) + '" font-size="' + FS + '" fill="#9A9A9A" text-anchor="middle">D+' + i + '</text>';
+    }
+
+    var pts = [], area = 'M' + xOf(1).toFixed(1) + ',' + yOf(0).toFixed(1) + ' ';
+    for(i = 1; i <= N; i++){
+      var v = c.surv[i-1];
+      pts.push([xOf(i), yOf(v)]);
+      area += 'L' + xOf(i).toFixed(1) + ',' + yOf(v).toFixed(1) + ' ';
+    }
+    area += 'L' + xOf(N).toFixed(1) + ',' + yOf(0).toFixed(1) + ' Z';
+    h += '<path d="' + area + '" fill="#111111" fill-opacity="0.045" stroke="none"/>';
+    h += '<path d="' + pts.map(function(pt, idx){ return (idx ? 'L' : 'M') + pt[0].toFixed(1) + ',' + pt[1].toFixed(1); }).join(' ') + '" fill="none" stroke="#111111" stroke-width="1.6" stroke-linejoin="round"/>';
+
+    if(c.crit && c.crit.d <= N){
+      var xc = xOf(c.crit.d);
+      var anchor = c.crit.d > N*0.82 ? 'end' : (c.crit.d < N*0.18 ? 'start' : 'middle');
+      h += '<line x1="' + xc.toFixed(1) + '" x2="' + xc.toFixed(1) + '" y1="' + pad.t + '" y2="' + (pad.t+ih) + '" stroke="#C9C9C9" stroke-width="1" stroke-dasharray="3 3"/>';
+      h += '<text x="' + xc.toFixed(1) + '" y="' + (pad.t-6) + '" font-size="' + FS + '" fill="#666666" text-anchor="' + anchor + '">임계점 D+' + c.crit.d + '</text>';
+      h += '<circle cx="' + xc.toFixed(1) + '" cy="' + yOf(c.surv[c.crit.d-1]).toFixed(1) + '" r="2.6" fill="#111111"/>';
+    }
+
+    var xk = xOf(LAB.day), yk = yOf(c.surv[LAB.day-1]);
+    h += '<line x1="' + xk.toFixed(1) + '" x2="' + xk.toFixed(1) + '" y1="' + pad.t + '" y2="' + (pad.t+ih) + '" stroke="#111111" stroke-width="1" stroke-dasharray="2 3" opacity="0.5"/>';
+    h += '<circle cx="' + xk.toFixed(1) + '" cy="' + yk.toFixed(1) + '" r="3.2" fill="#111111"/>';
+
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    svg.innerHTML = h;
+  }
+
+  function labStop(){
+    LAB.playing = false;
+    if(LAB.timer){ clearInterval(LAB.timer); LAB.timer = null; }
+  }
+
+  function labToggle(){
+    if(LAB.playing){ labStop(); renderLab(); return; }
+    if(LAB.day >= S.days || labDead()) LAB.day = 1;
+    LAB.playing = true;
+    clearInterval(LAB.timer);
+    LAB.timer = setInterval(function(){
+      if(LAB.day >= S.days || labDead()){ labStop(); renderLab(); return; }
+      LAB.day++;
+      renderLab();
+    }, 760);
+    renderLab();
+  }
+
   /* ---------- 전체 렌더 ---------- */
   function renderAll(){
+    labRebuild();
     renderHeader();
     renderKPI();
     renderChart();
     renderPlay();
     renderTable();
     renderStages();
+    renderLab();
   }
 
   /* ---------- 입력 ---------- */
@@ -1155,10 +1584,22 @@
       renderChart();
     });
 
+    $('labPlay').addEventListener('click', labToggle);
+    $('labStep').addEventListener('click', function(){
+      labStop();
+      if(LAB.day < S.days && !labDead()) LAB.day++;
+      renderLab();
+    });
+    $('labReset').addEventListener('click', function(){
+      labStop();
+      labRebuild(Math.floor(Math.random()*90000) + 1000);
+      renderLab();
+    });
+
     var rt;
     window.addEventListener('resize', function(){
       clearTimeout(rt);
-      rt = setTimeout(function(){ renderChart(); }, 180);
+      rt = setTimeout(function(){ renderChart(); renderLab(); }, 180);
     });
 
     $('btnHold').addEventListener('click', function(){
