@@ -7,3 +7,12 @@
 - 외부 라이브러리 없이 index.html 하나로 동작합니다.
 
 https://woojin052500-arch.github.io/digital-detox-simulator/
+
+## 배포 방법
+
+GitHub Pages가 `gh-pages` 브랜치를 바라보고 있습니다. 내용을 고칠 때는 `main`에 커밋한 뒤 같은 커밋을 `gh-pages`로도 올려야 사이트에 반영됩니다.
+
+    git push origin main
+    git push origin main:gh-pages
+
+연결된 GitHub 앱에 Pages 관리 권한이 없어 Settings에서 소스를 `main`으로 바꾸는 대신, `gh-pages` 브랜치 자동 퍼블리시로 운영합니다.
