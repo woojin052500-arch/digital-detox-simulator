@@ -1290,6 +1290,8 @@
     var r = row.ratio, out;
     if(row.shock){
       out = '친구가 태그했다. 알림이 계속 울린다. ' + mw(row.pot) + '이 걸려 있어도 손이 간다.';
+    } else if(p.key === 'realist' && row.trust < 0.85 && r < 1){
+      out = '예산을 넘은 금액은 손해로 안 잡힌다. 그래도 여는 쪽이 슬슬 무거워진다.';
     } else if(r < 0.12){
       if(p.key === 'iron') out = '손해는 ' + mw(row.cost) + '뿐이다. 하루는 그냥 넘긴다.';
       else if(p.key === 'calc') out = mw(row.cost) + ' 손해. 작지만 여는 순간 실험은 끝난다.';
@@ -1302,7 +1304,6 @@
       if(p.key === 'iron') out = '아직은 버틸 만하다. 흔들릴 이유가 없다.';
     } else if(r < 1){
       out = '저울이 거의 비겼다. 오늘 열면 ' + mw(row.cost) + ' 손해, 하루만 더 참으면 ' + mw(R(Math.min(k+1, S.days))) + '이다.';
-      if(p.key === 'realist' && row.trust < 1) out = '예산을 넘은 금액은 손해로 안 잡힌다. 그래도 여는 쪽이 슬슬 무거워진다.';
     } else if(row.trust < 0.85){
       out = '예산은 넘었는데 이 돈을 진짜 줄까. ' + mw(row.pot) + '이 숫자로만 보인다.';
     } else if(S.budget > 0 && row.pot > S.budget){
